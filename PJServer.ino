@@ -50,7 +50,7 @@
 #define DATACOL_COOLDOWN 120e3 //in second   600e3
 #define DATACOL_TIMESTORE 180e3 //in second 86400e3
 //gate working ping
-#define GATEWORKPING_INTERVAL 180e3 //in second   60e3
+#define GATEWORKPING_INTERVAL 300e3 //in second   60e3
 
 //Json generate param
 #define PARAM_SerialDevice "0"
