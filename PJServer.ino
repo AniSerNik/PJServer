@@ -4,8 +4,9 @@
 #include <unordered_map>
 #include <RH_RF95.h>
 #include <RHReliableDatagram.h>
-#include <ESP8266WiFi.h>
-#include <ESP8266HTTPClient.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
+
 #define JSON_MAX_LEN_FIELD 32
 #define JSON_MAX_NESTEDOBJECT 16
 //code for client / server
@@ -72,14 +73,14 @@ std::unordered_map<uint8_t, deviceInfo> devicesInfo;
 
 uint8_t curDeviceIdHandling = 0x00;
 
-RH_RF95 driver(15,4); 
+RH_RF95 driver(LORA_CS, LORA_DIO0); 
 RHReliableDatagram manager(driver, SERVER_ADDRESS);
 
-const char* ssid     = "rt";
-const char* password = "apsI0gqvFn";
+const char* ssid     = "MyNetWork";
+const char* password = "mmmmmmmm";
 
-IPAddress staticIP(10,200,1,202);
-IPAddress gateway(10,200,1,200);
+IPAddress staticIP(192,168,0,95);
+IPAddress gateway(192,168,0,1);
 IPAddress mask(255,255,255,0);
 
 //const char* ssid     = "Beeline_WIFI";
@@ -92,8 +93,11 @@ String curDeviceJson = "";
 
 void setup()  {
   Serial.begin(9600);
-  while (!Serial) ;
+  while (!Serial);
   Serial.println();
+
+  SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
+
   if (!manager.init())
     Serial.println("init failed");
   else
