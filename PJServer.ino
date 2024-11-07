@@ -76,7 +76,7 @@ uint8_t curDeviceIdHandling = 0x00;
 RH_RF95 driver(15,4); 
 RHReliableDatagram manager(driver, SERVER_ADDRESS);
 
-const char* ssid     = "rt";
+const char* ssid     = "rt451";
 const char* password = "apsI0gqvFn";
 
 IPAddress staticIP(10,200,1,202);
@@ -99,7 +99,10 @@ void setup()  {
     Serial.println("init failed");
   else
     Serial.println("init");
-
+  //
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  //lora
   driver.setTxPower(20, false);
   driver.setFrequency(869.2);
   driver.setCodingRate4(5);
@@ -115,8 +118,8 @@ void connect_wifi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   //for static ip
-  if (!WiFi.config(staticIP, gateway, mask))
-    Serial.println("Wifi Failed to configure");
+  //if (!WiFi.config(staticIP, gateway, mask))
+  //  Serial.println("Wifi Failed to configure");
   
   Serial.print(F("\nConnecting to WiFi "));
   int i = 0;
@@ -139,6 +142,8 @@ void connect_wifi() {
 
 void loop() {
   if (manager.available()) {
+    digitalWrite(LED_BUILTIN, LOW);
+    //
     uint8_t len = sizeof(recv_buf); 
     uint8_t from;
     if (manager.recvfromAck(recv_buf, &len, &from)) {
@@ -160,6 +165,8 @@ void loop() {
     curDeviceJson = "";
     curDeviceIdHandling = 0x00;
     memset(send_buf, 0, sizeof(send_buf));
+    //
+    digitalWrite(LED_BUILTIN, HIGH);
   }
   //garbage collected every * sec
   unsigned long elapsedTime = millis() - prevWatchTime;
@@ -178,6 +185,7 @@ void loop() {
   if(WiFi.status() != WL_CONNECTED) {
     unsigned long elapsedTimeWiFiConnect = millis() - prevWiFiConnect;
     if(elapsedTimeWiFiConnect > WIFICONN_INTERVAL) {
+      Serial.println(WiFi.status());
       prevWiFiConnect = millis();
       connect_wifi();
     }
@@ -240,7 +248,6 @@ void process_package() {
           curDeviceInfo.device_buf = NULL;
         }
         curDeviceInfo.device_buf_size = recv_buf[BYTE_COUNT] - 1;
-        Serial.println(curDeviceInfo.device_buf_size);
         curDeviceInfo.device_buf = (uint8_t*)calloc(curDeviceInfo.device_buf_size, sizeof(uint8_t));
         if(curDeviceInfo.device_buf != NULL) {
           memcpy(curDeviceInfo.device_buf, &recv_buf[COMMAND + 1], curDeviceInfo.device_buf_size);
