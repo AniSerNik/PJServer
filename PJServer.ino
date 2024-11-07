@@ -51,13 +51,14 @@
 #define DATACOL_TIMESTORE 180e3 //in second 86400e3
 //gate working ping
 #define GATEWORKPING_INTERVAL 300e3 //in second   60e3
-
+//
+#define WIFICONN_INTERVAL 60e3
 //Json generate param
 #define PARAM_SerialDevice "0"
 #define PARAM_Akey "NeKKxx2"
 #define PARAM_VersionDevice "TestSecond"
 
-
+unsigned long int prevWiFiConnect = 0;
 unsigned long int prevWatchTime = 0;
 unsigned long int prevTimeGateWorking = 0;
 unsigned long int packetcntr = 0;
@@ -107,13 +108,17 @@ void setup()  {
 
   driver.setModeRx();
 
+  connect_wifi();
+}
+
+void connect_wifi() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   //for static ip
   if (!WiFi.config(staticIP, gateway, mask))
     Serial.println("Wifi Failed to configure");
   
-  Serial.print(F("\nConnecting "));
+  Serial.print(F("\nConnecting to WiFi "));
   int i = 0;
   while (WiFi.status() != WL_CONNECTED) {
     delay(WIFICOOLDOWN);
@@ -168,6 +173,14 @@ void loop() {
   if(prevTimeGateWorking == 0 || elapsedTimeGateWorking > GATEWORKPING_INTERVAL) {
     gateWorkingPing();
     prevTimeGateWorking = millis();
+  }
+  //wifi reconnect
+  if(WiFi.status() != WL_CONNECTED) {
+    unsigned long elapsedTimeWiFiConnect = millis() - prevWiFiConnect;
+    if(elapsedTimeWiFiConnect > WIFICONN_INTERVAL) {
+      prevWiFiConnect = millis();
+      connect_wifi();
+    }
   }
 }
 
