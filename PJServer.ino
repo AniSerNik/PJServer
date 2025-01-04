@@ -73,7 +73,7 @@ std::unordered_map<uint8_t, deviceInfo> devicesInfo;
 
 uint8_t curDeviceIdHandling = 0x00;
 
-RH_RF95 driver(LORA_CS, LORA_DIO0); 
+RH_RF95 driver(LORA_CS, LORA_DIO0);
 RHReliableDatagram manager(driver, SERVER_ADDRESS);
 
 const char* ssid     = "MyNetWork";
@@ -93,7 +93,7 @@ String curDeviceJson = "";
 
 void setup()  {
   Serial.begin(9600);
-  while (!Serial);
+  while (!Serial); // Стопорит программу, пока не подключишь usb
   Serial.println();
 
   SPI.begin(LORA_SCK, LORA_MISO, LORA_MOSI, LORA_CS);
@@ -181,7 +181,6 @@ void gateWorkingPing() {
   json = "{\"system\":{ ";
   json += "\"Akey\":\"" + String(PARAM_Akey) + "\",";
   json += "\"Serial\":\"" + String(PARAM_SerialDevice) + "\", ";
-  //json += "\"Version\":\"" + String(PARAM_VersionDevice) + "\"}";
   json += "\"packetTotal\":\"" + String(packetcntr) + "\", ";
   json += "\"Version\":\"" + String(PARAM_VersionDevice) + "\"}";
   json += "}";
@@ -210,7 +209,6 @@ void process_package() {
         memcpy(&recv_buf[START_PAYLOAD - 1], curDeviceInfo.device_buf, sizeof(recv_buf) - 1);
         curDeviceJson = decodeJsonFromBytes();
         Serial.println(curDeviceJson);
-
         free(curDeviceInfo.device_buf);
         curDeviceInfo.device_buf = NULL;
         curDeviceInfo.device_buf_size = 0;
