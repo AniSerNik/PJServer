@@ -1,2 +1,0 @@
-# PJServer
-Bamed Server
