@@ -138,6 +138,8 @@ String getKeyFromId(uint8_t idKey, uint8_t dev_id) {
 String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi) {
   uint8_t nestedObject[JSON_MAX_NESTEDOBJECT], nesObjCount = 0;
   String result = "{";
+  bool isSystemObject = false; // Флаг для отслеживания объекта "system"
+
   for (int i = START_PAYLOAD; i < recv_buf[BYTE_COUNT];) {
     uint8_t key_id = recv_buf[i++];
     if (key_id == JSON_LEVEL_UP) {
@@ -146,10 +148,16 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi) 
         break;
       }
       nesObjCount--;
-      if(nestedObject[nesObjCount] == JSON_OBJECT)
+      if(nestedObject[nesObjCount] == JSON_OBJECT) {
+        // Если "system", добавляем RSSI
+        if (nesObjCount == 0 && isSystemObject) {
+          result += ", \"RSSI\": \"" + String(lastRssi) + "\"";
+          isSystemObject = false;
+        }
         result += '}';
+      }
       else if(nestedObject[nesObjCount] == JSON_ARRAY)
-        result += ']';
+        result += ']';      
       if (i != recv_buf[BYTE_COUNT] && recv_buf[i] != JSON_LEVEL_UP)
         result += ", ";
       continue;
@@ -159,6 +167,11 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi) 
       tag = key_id;
     else {
       result += '\"' + getKeyFromId(key_id, dev_id) + '\"' + ": ";
+
+    // Обнаруживаем "system"
+    if (getKeyFromId(key_id, dev_id) == "system")
+      isSystemObject = true;
+
       tag = recv_buf[i++];
     }
     switch (tag & GENERAL_TYPE_MASK) {
