@@ -11,8 +11,8 @@ QueueHandle_t processQueue;
 // Задача обработки пакетов
 void processPackageTask(void *pvParameters) {
   String decoded_json = "";
-  struct LoRaPacket* recv_packet = (struct LoRaPacket*)malloc(sizeof(struct LoRaPacket));
-  struct LoRaPacket* send_packet = (struct LoRaPacket*)malloc(sizeof(struct LoRaPacket));
+  struct loraPacket* recv_packet = (struct loraPacket*)malloc(sizeof(struct loraPacket));
+  struct loraPacket* send_packet = (struct loraPacket*)malloc(sizeof(struct loraPacket));
 
   while (1) {
     if(xQueueReceive(loraReciveQueue, recv_packet, portMAX_DELAY)) {
@@ -90,8 +90,8 @@ void processPackageTask(void *pvParameters) {
         printf("Ошибка постановки ответа для 0x%X в loraSendQueue\n", send_packet->from);
       }
 
-      memset(recv_packet, 0, sizeof(struct LoRaPacket));
-      memset(send_packet, 0, sizeof(struct LoRaPacket));
+      memset(recv_packet, 0, sizeof(struct loraPacket));
+      memset(send_packet, 0, sizeof(struct loraPacket));
     }
   }
   free(recv_packet);

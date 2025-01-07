@@ -15,6 +15,10 @@ extern QueueHandle_t wifiSendQueue;
 void sendToServerTask(void *pvParameters);
 void gatePingTask(void *pvParameters); 
 
+// Подключение к Wi-Fi
+static void wifiConnect();
+
+// Настройки Wi-Fi
 extern IPAddress staticIP;
 extern IPAddress gateway;
 extern IPAddress mask;

@@ -38,8 +38,8 @@ void setup()  {
   driver.setModeRx();
 
   // Инициализация очередей
-  loraReciveQueue = xQueueCreate(16, sizeof(LoRaPacket));
-  loraSendQueue = xQueueCreate(16, sizeof(LoRaPacket));
+  loraReciveQueue = xQueueCreate(16, sizeof(loraPacket));
+  loraSendQueue = xQueueCreate(16, sizeof(loraPacket));
   processQueue = xQueueCreate(16, sizeof(uint8_t) * RH_RF95_MAX_MESSAGE_LEN);
   wifiSendQueue = xQueueCreate(16, sizeof(String));
 
@@ -61,7 +61,7 @@ void setup()  {
     "Send Task",
     4096,
     NULL,
-    4,
+    5,
     NULL,
     0);
 

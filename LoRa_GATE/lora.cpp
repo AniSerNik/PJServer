@@ -10,7 +10,7 @@ QueueHandle_t loraSendQueue;
 
 // Задача приема LoRa-пакетов
 void loraReceiveTask(void *pvParameters) {
-  struct LoRaPacket packet = {0};
+  struct loraPacket packet = {0};
   while (1) {
     if (manager.available()) {
       packet.len = sizeof(packet.buf); 
@@ -27,7 +27,7 @@ void loraReceiveTask(void *pvParameters) {
 
 // Задача отправки LoRa-пакетов
 void loraSendTask(void *pvParameters) {
-  LoRaPacket data = {0};
+  loraPacket data = {0};
   while (1) {
     if (xQueueReceive(loraSendQueue, &data, portMAX_DELAY)) {
       if (!manager.sendtoWait(data.buf, data.len, data.from)) {

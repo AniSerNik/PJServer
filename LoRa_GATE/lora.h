@@ -6,7 +6,7 @@
 #include <queue.h>
 
 // Наш LoRa Packet
-struct LoRaPacket {
+struct loraPacket {
   uint8_t from; // id устройства в сети
   uint8_t len; // Длина буфрера
   uint8_t buf[RH_RF95_MAX_MESSAGE_LEN]; // Буфер для данных
