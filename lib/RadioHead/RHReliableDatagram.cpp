@@ -160,7 +160,7 @@ bool RHReliableDatagram::recvfromAck(uint8_t* buf, uint8_t* len, uint8_t* from, 
             // shuts down between transmissions. Devices that do this will report the
             // the same ID each time since their internal sequence number will reset
             // to zero each time the device starts up.
-	    if ((RH_ENABLE_EXPLICIT_RETRY_DEDUP && !(_flags & RH_FLAGS_RETRY)) || _id != _seenIds[_from])
+	    if ((RH_ENABLE_EXPLICIT_RETRY_DEDUP && !(_flags & RH_FLAGS_RETRY)) || _id != _seenIds[_from] || 1)
 	    {
 		if (from)  *from =  _from;
 		if (to)    *to =    _to;

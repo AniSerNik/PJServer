@@ -19,6 +19,5 @@ typedef struct deviceInfo {
 // Глобальные переменные
 extern std::unordered_map<uint8_t, deviceInfo> devicesInfo;
 extern SemaphoreHandle_t devicesInfoMutex;
-//extern unsigned long int packetcntr;
 
 #endif // MAIN_H

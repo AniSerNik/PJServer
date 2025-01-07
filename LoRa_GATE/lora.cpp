@@ -18,7 +18,7 @@ void loraReceiveTask(void *pvParameters) {
         if(xQueueSend(loraReciveQueue, &packet, portMAX_DELAY) != pdPASS){
           printf("Failed to send to loraReciveQueue\n");
         }
-        //packetcntr++;
+        packetcntr++;
       }
     }
     vTaskDelay(10 / portTICK_PERIOD_MS); // Задержка на вызов manager.available()
@@ -31,7 +31,7 @@ void loraSendTask(void *pvParameters) {
   while (1) {
     if (xQueueReceive(loraSendQueue, &data, portMAX_DELAY)) {
       if (!manager.sendtoWait(data.buf, data.len, data.from)) {
-        printf("sendtoWait failed\n");
+        printf("LoRa sendtoWait failed\n");
       }
     }
   }

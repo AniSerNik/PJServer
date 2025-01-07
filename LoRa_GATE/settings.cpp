@@ -16,4 +16,5 @@ const String servers[3] = {
   "http://dbrobo1.mf.bmstu.ru/core/jsonapp.php"
 };
 
-// Настройки LoRa
+// Счетчик отправленных пакетов
+unsigned long int packetcntr = 0;

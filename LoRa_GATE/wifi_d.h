@@ -3,12 +3,10 @@
 
 #include <Arduino.h>
 #include <WiFi.h>
-#include <HTTPClient.h>
-#include <FreeRTOS.h>
 #include <queue.h>
 
-#define WIFITRUES 15
-#define WIFICOOLDOWN 500
+#define WIFI_CONNECT_RETRY_COUNT 15
+#define WIFI_CONNECT_COOLDOWN 1000
 
 // Очередь для отправки данных на сервер
 extern QueueHandle_t wifiSendQueue;

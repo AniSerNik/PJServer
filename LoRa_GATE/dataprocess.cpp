@@ -34,27 +34,26 @@ void processPackageTask(void *pvParameters) {
             if(curDeviceInfo.device_buf != NULL) {
               memcpy(&recv_packet->buf[START_PAYLOAD - 1], curDeviceInfo.device_buf, sizeof(recv_packet->buf) - 1);
               decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from);
-              printf("%s\n", decoded_json.c_str());
+              printf("\nРаскодированный JSON от 0x%X:\n%s\n", recv_packet->from, decoded_json.c_str());
               free(curDeviceInfo.device_buf);
               curDeviceInfo.device_buf = NULL;
               curDeviceInfo.device_buf_size = 0;
               // Отправляем JSON в очередь отправки на сервер, если есть ключи
               if(xQueueSend(wifiSendQueue, &decoded_json, portMAX_DELAY) != pdPASS){
-                printf("Failed to send to wifiSendQueue\n");
+                printf("Ошибка постановки в wifiSendQueue пакета от 0x%X\n", recv_packet->from);
               }
             }
             break;
           case DATA:
             curDeviceInfo.device_buf_size = 0;
-
             if(devicesInfo.find(recv_packet->from) != devicesInfo.end() &&
                curDeviceInfo.maskKeys.size() > 0) {
               decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from);
               send_packet->buf[send_packet->buf[BYTE_COUNT]++] = REPLY_TRUE;
-              printf("%s\n", decoded_json.c_str());
+              printf("\nРаскодированный JSON от 0x%X:\n%s\n", recv_packet->from, decoded_json.c_str());
               // Отправляем JSON в очередь отправки на сервер, если нет ключей
               if(xQueueSend(wifiSendQueue, &decoded_json, portMAX_DELAY) != pdPASS){
-                printf("Failed to send to wifiSendQueue\n");
+                printf("Ошибка постановки в wifiSendQueue пакета от 0x%X\n", recv_packet->from);
               }
             }
             else {
@@ -63,11 +62,10 @@ void processPackageTask(void *pvParameters) {
                 curDeviceInfo.device_buf = NULL;
               }
               curDeviceInfo.device_buf_size = recv_packet->buf[BYTE_COUNT] - 1;
-              printf("%d\n", curDeviceInfo.device_buf_size);
               curDeviceInfo.device_buf = (uint8_t*)calloc(curDeviceInfo.device_buf_size, sizeof(uint8_t));
               if(curDeviceInfo.device_buf != NULL) {
                 memcpy(curDeviceInfo.device_buf, &recv_packet->buf[COMMAND + 1], curDeviceInfo.device_buf_size);
-                printf("Данные сохранены в ожидании ключей\n");
+                printf("Данные от 0x%X сохранены в ожидании ключей\n", recv_packet->from);
               }
               send_packet->buf[send_packet->buf[BYTE_COUNT]++] = REPLY_FALSE;
             }
@@ -89,13 +87,15 @@ void processPackageTask(void *pvParameters) {
       send_packet->len = send_packet->buf[BYTE_COUNT];
 
       if (xQueueSend(loraSendQueue, send_packet, portMAX_DELAY) != pdPASS) {
-        printf("Failed to send to loraSendQueue\n");
+        printf("Ошибка постановки ответа для 0x%X в loraSendQueue\n", send_packet->from);
       }
 
       memset(recv_packet, 0, sizeof(struct LoRaPacket));
       memset(send_packet, 0, sizeof(struct LoRaPacket));
     }
   }
+  free(recv_packet);
+  free(send_packet);
 }
 
 void registationKeys(uint8_t from, uint8_t *recv_buf) {
@@ -104,7 +104,7 @@ void registationKeys(uint8_t from, uint8_t *recv_buf) {
   char *pch = strtok((char *)recv_buf, " ");
   pch = strtok(NULL, " "); // Пропускаем первый токен, если он нужен
   if(pch == NULL){
-    printf("No keys received for registration\n");
+    printf("Нет ключей для регистрации для 0x%X\n", from);
     return;
   }
   for (uint8_t i = 0; pch != NULL; i++) {
@@ -147,7 +147,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id) {
     uint8_t key_id = recv_buf[i++];
     if (key_id == JSON_LEVEL_UP) {
       if(nesObjCount == 0) {
-        printf("Error with nested object!\n");
+        printf("Ошибка вложенного объекта!\n");
         break;
       }
       nesObjCount--;
@@ -172,7 +172,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id) {
           case JSON_OBJECT: {
             result += '{';
             if(nesObjCount == JSON_MAX_NESTEDOBJECT)
-              printf("Error. Max nested object reach\n");
+              printf("Ошибка. Превышено число вложенных объектов\n");
             nestedObject[nesObjCount] = JSON_OBJECT;
             nesObjCount++;
             continue;
@@ -180,7 +180,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id) {
           case JSON_ARRAY: {
             result += '[';
             if(nesObjCount == JSON_MAX_NESTEDOBJECT)
-              printf("Error. Max nested object reach\n");
+              printf("Ошибка. Превышено число вложенных объектов\n");
             nestedObject[nesObjCount] = JSON_ARRAY;
             nesObjCount++;
             continue;

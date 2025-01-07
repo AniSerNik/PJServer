@@ -3,7 +3,6 @@
 
 #include <RH_RF95.h>
 #include <RHReliableDatagram.h>
-#include <FreeRTOS.h>
 #include <queue.h>
 
 // Наш LoRa Packet
