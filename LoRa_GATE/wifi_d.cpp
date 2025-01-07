@@ -1,45 +1,34 @@
-#include <HTTPClient.h>
-#include "settings.h"
 #include "wifi_d.h"
+#include "settings.h"
+#include <HTTPClient.h>
 
 // Очередь для отправки данных на сервер
-QueueHandle_t serverQueue;
+QueueHandle_t wifiSendQueue;
 
-// Настройки Wi-Fi
-IPAddress staticIP(192,168,0,95);
-IPAddress gateway(192,168,0,1);
-IPAddress mask(255,255,255,0);
-
-// Глобальные переменные для адресов серверов
-const char* server_addresses[] = {
-  "http://robo.itkm.ru/core/jsonapp.php",
-  "http://46.254.216.214/core/jsonapp.php",
-  "http://dbrobo1.mf.bmstu.ru/core/jsonapp.php"
-};
+IPAddress staticIP(net_ip);
+IPAddress gateway(net_gateway_ip);
+IPAddress mask(net_mask);
 
 // Задача периодической отправки пинга шлюза
-void gatePingTask(void *pvParameters) { //переписать нормально время
-  unsigned long prevTimeGateWorking = 0;
+void gatePingTask(void *pvParameters) {
   while (1) {
-    unsigned long currentTime = millis();
-    if(prevTimeGateWorking == 0 || (currentTime - prevTimeGateWorking) > GATEWORKPING_INTERVAL) {
-      printf("\n---Sending info about gate---\n");
-      String json;
-      json = "{\"system\":{ ";
-      json += "\"Akey\":\"" + String(PARAM_Akey) + "\",";
-      json += "\"Serial\":\"" + String(PARAM_SerialDevice) + "\", ";
-      //json += "\"packetTotal\":\"" + String(packetcntr) + "\", ";
-      json += "\"Version\":\"" + String(PARAM_VersionDevice) + "\"}";
-      json += "}";
-      printf("%s\n", json.c_str());
-      // Отправляем JSON в очередь отправки на сервер
-      if(xQueueSend(serverQueue, &json, portMAX_DELAY) != pdPASS){
-        printf("Failed to send gate ping to serverQueue\n");
-      }
-      printf("\n---Sending finished---\n"); //не корректно
-      prevTimeGateWorking = currentTime;
+    printf("\n---Sending info about gate---\n");
+    String json;
+    json = "{\"system\":{ ";
+    json += "\"Akey\":\"" + String(PARAM_Akey) + "\",";
+    json += "\"Serial\":\"" + String(PARAM_SerialDevice) + "\", ";
+    //json += "\"packetTotal\":\"" + String(packetcntr) + "\", ";
+    json += "\"Version\":\"" + String(PARAM_VersionDevice) + "\"}";
+    json += "}";
+    printf("%s\n", json.c_str());
+    // Отправляем JSON в очередь отправки на сервер
+    if(xQueueSend(wifiSendQueue, &json, portMAX_DELAY) != pdPASS){
+      printf("Failed to send gate ping to serverQueue\n");
     }
-    vTaskDelay(1000 / portTICK_PERIOD_MS); // Проверяем каждую секунду
+    printf("\n---Sending finished---\n");
+    
+    // Задержка на интервал GATEWORKPING_INTERVAL
+    vTaskDelay(GATEWORKPING_INTERVAL / portTICK_PERIOD_MS);
   }
 }
 
@@ -47,14 +36,14 @@ void gatePingTask(void *pvParameters) { //переписать нормальн�
 void sendToServerTask(void *pvParameters) {
   String data;
   while (1) {
-    if(xQueueReceive(serverQueue, &data, portMAX_DELAY)) {
+    if(xQueueReceive(wifiSendQueue, &data, portMAX_DELAY)) {
       // Проверяем подключение к WiFi
       if (WiFi.status() != WL_CONNECTED) {
         printf("WiFi disconnected. Attempting to reconnect...\n");
         WiFi.begin(ssid, password);
         int i = 0;
         while (WiFi.status() != WL_CONNECTED && i < WIFITRUES) {
-          delay(WIFICOOLDOWN);
+          vTaskDelay(WIFICOOLDOWN / portTICK_PERIOD_MS);
           printf(".");
           i++;
         }
@@ -68,11 +57,11 @@ void sendToServerTask(void *pvParameters) {
       }
 
       // Отправляем данные на все серверы
-      for (const char* server_addr : server_addresses) {
+      for (const String& server : servers) {
         WiFiClient client;
         if (WiFi.status() == WL_CONNECTED) {
           HTTPClient http;
-          http.begin(client, server_addr);
+          http.begin(client, server.c_str());
           http.addHeader("Content-Type", "application/json");
           int httpResponseCode = http.POST(data);
           printf("HTTP response code: %d\n", httpResponseCode);

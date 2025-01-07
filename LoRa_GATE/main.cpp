@@ -16,10 +16,8 @@
 
 // Глобальные переменные
 std::unordered_map<uint8_t, deviceInfo> devicesInfo;
-uint8_t curDeviceIdHandling = 0x00;
-String curDeviceJson = "";
 SemaphoreHandle_t devicesInfoMutex;
-unsigned long int packetcntr = 0;
+//unsigned long int packetcntr = 0;
 
 void setup()  {
   Serial.begin(9600);
@@ -64,10 +62,10 @@ void setup()  {
   else printf("WiFi not connected\n");
 
   // Инициализация очередей
-  loraQueue = xQueueCreate(10, sizeof(LoRaPacket));
+  loraReciveQueue = xQueueCreate(10, sizeof(LoRaPacket));
   processQueue = xQueueCreate(10, sizeof(uint8_t) * RH_RF95_MAX_MESSAGE_LEN);
-  serverQueue = xQueueCreate(10, sizeof(String));
-  sendQueue = xQueueCreate(10, sizeof(LoRaPacket));
+  wifiSendQueue = xQueueCreate(10, sizeof(String));
+  loraSendQueue = xQueueCreate(10, sizeof(LoRaPacket));
 
   // Инициализация семафора
   devicesInfoMutex = xSemaphoreCreateMutex();

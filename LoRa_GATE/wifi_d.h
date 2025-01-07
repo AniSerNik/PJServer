@@ -7,15 +7,18 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 
-// Очередь для отправки данных на сервер
-extern QueueHandle_t serverQueue;
+#define WIFITRUES 15
+#define WIFICOOLDOWN 500
 
-// Настройки Wi-Fi
+// Очередь для отправки данных на сервер
+extern QueueHandle_t wifiSendQueue;
+
+// Задачи
+void sendToServerTask(void *pvParameters);
+void gatePingTask(void *pvParameters); 
+
 extern IPAddress staticIP;
 extern IPAddress gateway;
 extern IPAddress mask;
-
-void sendToServerTask(void *pvParameters);
-void gatePingTask(void *pvParameters);
 
 #endif // WIFI_D_H

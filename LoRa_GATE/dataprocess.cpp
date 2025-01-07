@@ -10,55 +10,51 @@ QueueHandle_t processQueue;
 
 // Задача обработки пакетов
 void processPackageTask(void *pvParameters) {
-  struct LoRaPacket packet = {0};
-  // Буферы
-  uint8_t send_buf[RH_RF95_MAX_MESSAGE_LEN];
-  uint8_t recv_buf[RH_RF95_MAX_MESSAGE_LEN];
+  String decoded_json = "";
+  struct LoRaPacket* recv_packet = (struct LoRaPacket*)malloc(sizeof(struct LoRaPacket));
+  struct LoRaPacket* send_packet = (struct LoRaPacket*)malloc(sizeof(struct LoRaPacket));
 
   while (1) {
-    if(xQueueReceive(loraQueue, &packet, portMAX_DELAY)) {
-      uint8_t from = packet.from; // Предполагается, что первый байт - ID устройства
-      curDeviceIdHandling = from;
-      printf("Получен запрос от 0x%X [%d]: ", from, driver.lastRssi());
-      printBuf(packet.buf);
-      
-      memccpy(recv_buf, packet.buf, 0, sizeof(packet.buf));
+    if(xQueueReceive(loraReciveQueue, recv_packet, portMAX_DELAY)) {
+      printf("Получен запрос от 0x%X [%d]: ", recv_packet->from, driver.lastRssi());
+      printBuf(recv_packet->buf);
 
       // Обработка пакета
-      send_buf[COMMAND] = packet.buf[COMMAND];
-      send_buf[BYTE_COUNT] = START_PAYLOAD;
+      send_packet->buf[COMMAND] = recv_packet->buf[COMMAND];
+      send_packet->buf[BYTE_COUNT] = START_PAYLOAD;
+      send_packet->from = recv_packet->from;
 
       // Работа с устройствами с защитой семафором
-      if(xSemaphoreTake(devicesInfoMutex, portMAX_DELAY)){
-        deviceInfo &curDeviceInfo = devicesInfo[from];
+      if(xSemaphoreTake(devicesInfoMutex, portMAX_DELAY)) {
+        deviceInfo &curDeviceInfo = devicesInfo[recv_packet->from];
 
-        switch (packet.buf[COMMAND]) {
+        switch (recv_packet->buf[COMMAND]) {
           case REGISTRATION:
-            registationKeys(from, recv_buf);
+            registationKeys(recv_packet->from, recv_packet->buf);
             if(curDeviceInfo.device_buf != NULL) {
-              memcpy(&recv_buf[START_PAYLOAD - 1], curDeviceInfo.device_buf, sizeof(recv_buf) - 1);
-              curDeviceJson = decodeJsonFromBytes(recv_buf, from); //Проблема тута
-              printf("%s\n", curDeviceJson.c_str());
+              memcpy(&recv_packet->buf[START_PAYLOAD - 1], curDeviceInfo.device_buf, sizeof(recv_packet->buf) - 1);
+              decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from);
+              printf("%s\n", decoded_json.c_str());
               free(curDeviceInfo.device_buf);
               curDeviceInfo.device_buf = NULL;
               curDeviceInfo.device_buf_size = 0;
               // Отправляем JSON в очередь отправки на сервер, если есть ключи
-              if(xQueueSend(serverQueue, &curDeviceJson, portMAX_DELAY) != pdPASS){
-                printf("Failed to send to serverQueue\n");
+              if(xQueueSend(wifiSendQueue, &decoded_json, portMAX_DELAY) != pdPASS){
+                printf("Failed to send to wifiSendQueue\n");
               }
             }
             break;
           case DATA:
             curDeviceInfo.device_buf_size = 0;
 
-            if(devicesInfo.find(from) != devicesInfo.end() &&
+            if(devicesInfo.find(recv_packet->from) != devicesInfo.end() &&
                curDeviceInfo.maskKeys.size() > 0) {
-              curDeviceJson = decodeJsonFromBytes(recv_buf, from);
-              send_buf[send_buf[BYTE_COUNT]++] = REPLY_TRUE;
-              printf("%s\n", curDeviceJson.c_str());
+              decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from);
+              send_packet->buf[send_packet->buf[BYTE_COUNT]++] = REPLY_TRUE;
+              printf("%s\n", decoded_json.c_str());
               // Отправляем JSON в очередь отправки на сервер, если нет ключей
-              if(xQueueSend(serverQueue, &curDeviceJson, portMAX_DELAY) != pdPASS){
-                printf("Failed to send to serverQueue\n");
+              if(xQueueSend(wifiSendQueue, &decoded_json, portMAX_DELAY) != pdPASS){
+                printf("Failed to send to wifiSendQueue\n");
               }
             }
             else {
@@ -66,48 +62,42 @@ void processPackageTask(void *pvParameters) {
                 free(curDeviceInfo.device_buf);
                 curDeviceInfo.device_buf = NULL;
               }
-              curDeviceInfo.device_buf_size = packet.buf[BYTE_COUNT] - 1;
+              curDeviceInfo.device_buf_size = recv_packet->buf[BYTE_COUNT] - 1;
               printf("%d\n", curDeviceInfo.device_buf_size);
               curDeviceInfo.device_buf = (uint8_t*)calloc(curDeviceInfo.device_buf_size, sizeof(uint8_t));
               if(curDeviceInfo.device_buf != NULL) {
-                memcpy(curDeviceInfo.device_buf, &packet.buf[COMMAND + 1], curDeviceInfo.device_buf_size);
+                memcpy(curDeviceInfo.device_buf, &recv_packet->buf[COMMAND + 1], curDeviceInfo.device_buf_size);
                 printf("Данные сохранены в ожидании ключей\n");
               }
-              send_buf[send_buf[BYTE_COUNT]++] = REPLY_FALSE;
+              send_packet->buf[send_packet->buf[BYTE_COUNT]++] = REPLY_FALSE;
             }
             break;
           case CLEAR_INFO:
-            deleteInfo(from);
-            send_buf[send_buf[BYTE_COUNT]++] = REPLY_TRUE;
+            deleteInfo(recv_packet->from);
+            send_packet->buf[send_packet->buf[BYTE_COUNT]++] = REPLY_TRUE;
             break;
         }
 
         // Обновляем время последнего сообщения
-        if(devicesInfo.find(from) != devicesInfo.end()) {
-          devicesInfo[from].lastSendTime = millis();
+        if(devicesInfo.find(recv_packet->from) != devicesInfo.end()) {
+          devicesInfo[recv_packet->from].lastSendTime = millis();
         }
 
         xSemaphoreGive(devicesInfoMutex);
       }
 
-      // Пример добавления данных в очередь для отправки
-      LoRaPacket data = {0};
-      // Заполнение данных
-      memcpy(data.buf, send_buf, RH_RF95_MAX_MESSAGE_LEN);
-      data.len = send_buf[BYTE_COUNT];
-      data.from = from;
+      send_packet->len = send_packet->buf[BYTE_COUNT];
 
-      if (xQueueSend(sendQueue, &data, portMAX_DELAY) != pdPASS) {
-        printf("Failed to send to sendQueue\n");
+      if (xQueueSend(loraSendQueue, send_packet, portMAX_DELAY) != pdPASS) {
+        printf("Failed to send to loraSendQueue\n");
       }
 
-      // Очистка буфера отправки
-      memset(send_buf, 0, sizeof(send_buf));
+      memset(recv_packet, 0, sizeof(struct LoRaPacket));
+      memset(send_packet, 0, sizeof(struct LoRaPacket));
     }
   }
 }
 
-// Функция регистрации ключей
 void registationKeys(uint8_t from, uint8_t *recv_buf) {
   if(devicesInfo.find(from) != devicesInfo.end())
     devicesInfo[from].maskKeys.clear();
@@ -125,7 +115,7 @@ void registationKeys(uint8_t from, uint8_t *recv_buf) {
     printf("%d\t%s\n", x.first, x.second.c_str());
 }
 
-// Функция удаления информации об устройстве
+//Удаление инфрмации об устройстве
 void deleteInfo(uint8_t from) {
   auto it = devicesInfo.find(from);
   if(it != devicesInfo.end()) {
@@ -139,17 +129,13 @@ void deleteInfo(uint8_t from) {
 
 // Получение ключа по ID
 String getKeyFromId(uint8_t idKey, uint8_t dev_id) {
-  //if(xSemaphoreTake(devicesInfoMutex, portMAX_DELAY)){
     auto it = devicesInfo.find(dev_id);
     if(it != devicesInfo.end()){
       auto res = it->second.maskKeys.find(idKey);
       if (res != it->second.maskKeys.end()) {
-        //xSemaphoreGive(devicesInfoMutex);
         return String(res->second.c_str());
       }
     }
-    //xSemaphoreGive(devicesInfoMutex);
-  //}
   return "NotRegisteredKey";
 }
 

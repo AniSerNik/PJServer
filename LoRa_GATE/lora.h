@@ -6,21 +6,23 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 
-// LoRa Packet
+// Наш LoRa Packet
 struct LoRaPacket {
-  uint8_t from;
-  uint8_t len;
-  uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
+  uint8_t from; // id устройства в сети
+  uint8_t len; // Длина буфрера
+  uint8_t buf[RH_RF95_MAX_MESSAGE_LEN]; // Буфер для данных
 };
 
-// LoRa и менеджер
+// Для библиотеки LoRa RadioHead
 extern RH_RF95 driver;
 extern RHReliableDatagram manager;
 
-void loraReceiveTask(void *pvParameters);
-void loraSendTask(void *pvParameters);
+// Задачи
+void loraReceiveTask(void *pvParameters); // Получение пакетов
+void loraSendTask(void *pvParameters); // Отправка пакетов
 
-extern QueueHandle_t loraQueue;
-extern QueueHandle_t sendQueue;
+// Очереди
+extern QueueHandle_t loraReciveQueue; // Полученные пакеты
+extern QueueHandle_t loraSendQueue; // Пакеты на отправку
 
 #endif // LORA_H
