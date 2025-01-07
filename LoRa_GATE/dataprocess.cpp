@@ -33,7 +33,7 @@ void processPackageTask(void *pvParameters) {
             registationKeys(recv_packet->from, recv_packet->buf);
             if(curDeviceInfo.device_buf != NULL) {
               memcpy(&recv_packet->buf[START_PAYLOAD - 1], curDeviceInfo.device_buf, sizeof(recv_packet->buf) - 1);
-              decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from);
+              decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from, driver.lastRssi());
               printf("\nРаскодированный JSON от 0x%X:\n%s\n", recv_packet->from, decoded_json.c_str());
               free(curDeviceInfo.device_buf);
               curDeviceInfo.device_buf = NULL;
@@ -48,7 +48,7 @@ void processPackageTask(void *pvParameters) {
             curDeviceInfo.device_buf_size = 0;
             if(devicesInfo.find(recv_packet->from) != devicesInfo.end() &&
                curDeviceInfo.maskKeys.size() > 0) {
-              decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from);
+              decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from, driver.lastRssi());
               send_packet->buf[send_packet->buf[BYTE_COUNT]++] = REPLY_TRUE;
               printf("\nРаскодированный JSON от 0x%X:\n%s\n", recv_packet->from, decoded_json.c_str());
               // Отправляем JSON в очередь отправки на сервер, если нет ключей
@@ -101,12 +101,7 @@ void processPackageTask(void *pvParameters) {
 void registationKeys(uint8_t from, uint8_t *recv_buf) {
   if(devicesInfo.find(from) != devicesInfo.end())
     devicesInfo[from].maskKeys.clear();
-  char *pch = strtok((char *)recv_buf, " ");
-  pch = strtok(NULL, " "); // Пропускаем первый токен, если он нужен
-  if(pch == NULL){
-    printf("Нет ключей для регистрации для 0x%X\n", from);
-    return;
-  }
+  char *pch = strtok((char *)recv_buf, " ") + START_PAYLOAD;
   for (uint8_t i = 0; pch != NULL; i++) {
     devicesInfo[from].maskKeys.insert(std::make_pair(i, pch));
     pch = strtok(NULL, " ");
@@ -140,7 +135,7 @@ String getKeyFromId(uint8_t idKey, uint8_t dev_id) {
 }
 
 // Декодирование JSON из байтов
-String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id) {
+String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi) {
   uint8_t nestedObject[JSON_MAX_NESTEDOBJECT], nesObjCount = 0;
   String result = "{";
   for (int i = START_PAYLOAD; i < recv_buf[BYTE_COUNT];) {

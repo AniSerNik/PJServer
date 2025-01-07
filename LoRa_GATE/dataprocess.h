@@ -44,7 +44,7 @@
 void processPackageTask(void *pvParameters);
 
 // Функции
-String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id); // Декодирование JSON из байтов
+String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi); // Декодирование JSON из байтов
 String getKeyFromId(uint8_t idKey); // Получение ключа по ID
 int64_t quick_pow10(int n); // Быстрое возведение 10 в степень
 void registationKeys(uint8_t from, uint8_t *recv_buf); // Функция регистрации ключей

@@ -24,7 +24,7 @@ void gatePingTask(void *pvParameters) {
     json += "\"Serial\":\"" + String(PARAM_SerialDevice) + "\",";
     json += "\"Version\":\"" + String(PARAM_VersionDevice) + "\",";
     json += "\"Recived\":\"" + String(packetcntr) + "\",";
-    json += "\"Wi-Fi RSSI\":\"" + String(WiFi.RSSI()) + "\"}";
+    json += "\"RSSI\":\"" + String(WiFi.RSSI()) + "\"}";
     json += "}";
     printf("JSON информация о шлюзе:\n%s\n", json.c_str());
 
