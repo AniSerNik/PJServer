@@ -32,6 +32,8 @@
 #define DATACOL_TIMESTORE 3600000
 // Ping работы шлюза
 #define GATEWORKPING_INTERVAL 300000 // в миллисекундах (300e3)
+// Отрисовка данных на дисплее
+#define DISPLAY_INTERVAL 1000 // в миллисекундах (1e3)
 
 // Параметры для генерации JSON
 #define PARAM_SerialDevice "0"

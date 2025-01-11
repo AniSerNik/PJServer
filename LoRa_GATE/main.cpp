@@ -1,12 +1,13 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#include <pins.h>
-#include <main.h>
-#include <lora_d.h>
-#include <wifi_d.h>
-#include <dataprocess.h>
-#include <garbagecollector.h>
-#include <settings.h>
+#include "headers/pins.h"
+#include "headers/main.h"
+#include "headers/lora_d.h"
+#include "headers/wifi_d.h"
+#include "headers/dataprocess.h"
+#include "headers/garbagecollector.h"
+#include "headers/display.h"
+#include "headers/settings.h"
 
 // Глобальные переменные
 std::unordered_map<uint8_t, deviceInfo> devicesInfo;
@@ -49,7 +50,7 @@ void setup()
       "LoRa Receive Task", // Имя задачи
       4096,                // Размер стека
       NULL,                // Параметры задачи
-      4,                   // Приоритет
+      3,                   // Приоритет
       NULL,                // Дескриптор задачи
       0);                  // Ядро
 
@@ -58,7 +59,7 @@ void setup()
       "Send Task",
       4096,
       NULL,
-      5,
+      4,
       NULL,
       0);
 
@@ -76,7 +77,7 @@ void setup()
       "Send To Server Task",
       4096,
       NULL,
-      3,
+      2,
       NULL,
       1);
 
@@ -92,6 +93,15 @@ void setup()
   xTaskCreatePinnedToCore(
       gatePingTask,
       "Gate Ping Task",
+      4096,
+      NULL,
+      1,
+      NULL,
+      1);
+
+  xTaskCreatePinnedToCore(
+      displayTask,
+      "Display Task",
       4096,
       NULL,
       1,

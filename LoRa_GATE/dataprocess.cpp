@@ -1,11 +1,11 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#include <lora_d.h>
-#include <wifi_d.h>
-#include <main.h>
-#include <settings.h>
-#include <dataprocess.h>
 #include <utility>
+#include "headers/lora_d.h"
+#include "headers/wifi_d.h"
+#include "headers/main.h"
+#include "headers/settings.h"
+#include "headers/dataprocess.h"
 #include <Arduino.h>
 
 // Очередь для отправки данных на сервер

@@ -1,6 +1,6 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#include <settings.h>
+#include "headers/settings.h"
 #include <Arduino.h>
 
 // Настройки подключения Wi-Fi
