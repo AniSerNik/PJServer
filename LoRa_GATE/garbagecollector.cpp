@@ -1,8 +1,10 @@
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#include <garbagecollector.h>
+#include <main.h>
+#include <settings.h>
 #include <Arduino.h>
 #include <queue.h>
-
-#include "settings.h"
-#include "main.h"
 
 // Задача сбора мусора (удаление информации о устройствах которые не отвечают)
 void garbageCollectorTask(void *pvParameters)
@@ -16,7 +18,7 @@ void garbageCollectorTask(void *pvParameters)
       while (it != devicesInfo.end())
       {
         uint8_t nowId = it->first;
-        unsigned long elapsed_time = millis() - it->second.lastSendTime;
+        uint64_t elapsed_time = millis() - it->second.lastSendTime;
         if (elapsed_time > DATACOL_TIMESTORE)
         {
           if (it->second.device_buf != NULL)

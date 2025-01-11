@@ -1,5 +1,7 @@
-#ifndef DATAPROCESS_H
-#define DATAPROCESS_H
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#ifndef LORA_GATE_DATAPROCESS_H_
+#define LORA_GATE_DATAPROCESS_H_
 
 #include <Arduino.h>
 
@@ -53,4 +55,4 @@ void deleteInfo(uint8_t from);                                                  
 // Очередь для обработки данных
 extern QueueHandle_t processQueue;
 
-#endif // DATAPROCESS_H
+#endif // LORA_GATE_DATAPROCESS_H_

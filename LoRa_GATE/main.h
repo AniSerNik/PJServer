@@ -1,5 +1,7 @@
-#ifndef MAIN_H
-#define MAIN_H
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#ifndef LORA_GATE_MAIN_H_
+#define LORA_GATE_MAIN_H_
 
 #include <Arduino.h>
 #include <FreeRTOS.h>
@@ -12,7 +14,7 @@
 typedef struct deviceInfo
 {
   std::unordered_map<uint8_t, std::string> maskKeys;
-  unsigned long int lastSendTime;
+  uint64_t lastSendTime;
   uint8_t *device_buf;
   size_t device_buf_size;
 } deviceInfo;
@@ -21,4 +23,4 @@ typedef struct deviceInfo
 extern std::unordered_map<uint8_t, deviceInfo> devicesInfo;
 extern SemaphoreHandle_t devicesInfoMutex;
 
-#endif // MAIN_H
+#endif // LORA_GATE_MAIN_H_

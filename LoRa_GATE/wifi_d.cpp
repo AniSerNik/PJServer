@@ -1,5 +1,7 @@
-#include "wifi_d.h"
-#include "settings.h"
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#include <wifi_d.h>
+#include <settings.h>
 #include <HTTPClient.h>
 
 // Очередь для отправки данных на сервер

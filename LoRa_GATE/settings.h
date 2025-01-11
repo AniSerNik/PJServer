@@ -1,5 +1,7 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#ifndef LORA_GATE_SETTINGS_H_
+#define LORA_GATE_SETTINGS_H_
 
 #include <Arduino.h>
 
@@ -47,6 +49,6 @@ extern const uint8_t net_mask[4];
 extern const String servers[3];
 
 // Счетчик отправленных пакетов
-extern unsigned long int packetcntr;
+extern uint64_t packetcntr;
 
-#endif // SETTINGS_H
+#endif // LORA_GATE_SETTINGS_H_

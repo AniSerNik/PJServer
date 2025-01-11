@@ -1,4 +1,6 @@
-#include "settings.h"
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#include <settings.h>
 #include <Arduino.h>
 
 // Настройки подключения Wi-Fi
@@ -16,4 +18,4 @@ const String servers[3] = {
     "http://dbrobo1.mf.bmstu.ru/core/jsonapp.php"};
 
 // Счетчик отправленных пакетов
-unsigned long int packetcntr = 0;
+uint64_t packetcntr = 0;

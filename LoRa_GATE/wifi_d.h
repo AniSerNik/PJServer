@@ -1,5 +1,7 @@
-#ifndef WIFI_D_H
-#define WIFI_D_H
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#ifndef LORA_GATE_WIFI_D_H_
+#define LORA_GATE_WIFI_D_H_
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -23,4 +25,4 @@ extern IPAddress staticIP;
 extern IPAddress gateway;
 extern IPAddress mask;
 
-#endif // WIFI_D_H
+#endif // LORA_GATE_WIFI_D_H_

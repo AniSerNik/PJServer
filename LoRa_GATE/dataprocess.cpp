@@ -1,8 +1,11 @@
-#include "dataprocess.h"
-#include "lora.h"
-#include "wifi_d.h"
-#include "main.h"
-#include "settings.h"
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#include <lora_d.h>
+#include <wifi_d.h>
+#include <main.h>
+#include <settings.h>
+#include <dataprocess.h>
+#include <utility>
 #include <Arduino.h>
 
 // Очередь для отправки данных на сервер
@@ -73,7 +76,7 @@ void processPackageTask(void *pvParameters)
               curDeviceInfo.device_buf = NULL;
             }
             curDeviceInfo.device_buf_size = recv_packet->buf[BYTE_COUNT] - 1;
-            curDeviceInfo.device_buf = (uint8_t *)calloc(curDeviceInfo.device_buf_size, sizeof(uint8_t));
+            curDeviceInfo.device_buf = reinterpret_cast<uint8_t *>(calloc(curDeviceInfo.device_buf_size, sizeof(uint8_t)));
             if (curDeviceInfo.device_buf != NULL)
             {
               memcpy(curDeviceInfo.device_buf, &recv_packet->buf[COMMAND + 1], curDeviceInfo.device_buf_size);
@@ -116,11 +119,12 @@ void registationKeys(uint8_t from, uint8_t *recv_buf)
 {
   if (devicesInfo.find(from) != devicesInfo.end())
     devicesInfo[from].maskKeys.clear();
-  char *pch = strtok((char *)recv_buf, " ") + START_PAYLOAD;
+  char *saveptr;
+  char *pch = strtok_r(reinterpret_cast<char *>(recv_buf) + START_PAYLOAD, " ", &saveptr);
   for (uint8_t i = 0; pch != NULL; i++)
   {
     devicesInfo[from].maskKeys.insert(std::make_pair(i, pch));
-    pch = strtok(NULL, " ");
+    pch = strtok_r(NULL, " ", &saveptr);
   }
   for (auto x : devicesInfo[from].maskKeys)
     printf("%d\t%s\n", x.first, x.second.c_str());
@@ -239,7 +243,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi)
         char ip_str[16];
         for (int j = 0; j < 4; j++)
           ip[j] = recv_buf[i++];
-        sprintf(ip_str, "%hhu.%hhu.%hhu.%hhu", ip[0], ip[1], ip[2], ip[3]);
+        snprintf(ip_str, sizeof(ip_str), "%hhu.%hhu.%hhu.%hhu", ip[0], ip[1], ip[2], ip[3]);
         result += '\"' + String(ip_str) + '\"';
         if (i != recv_buf[BYTE_COUNT] && recv_buf[i] != JSON_LEVEL_UP)
           result += ", ";
@@ -251,7 +255,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi)
         char mac_str[18];
         for (int j = 0; j < 6; j++)
           mac[j] = recv_buf[i++];
-        sprintf(mac_str, "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+        snprintf(mac_str, sizeof(mac_str), "%02X:%02X:%02X:%02X:%02X:%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
         result += '\"' + String(mac_str) + '\"';
         if (i != recv_buf[BYTE_COUNT] && recv_buf[i] != JSON_LEVEL_UP)
           result += ", ";
@@ -265,7 +269,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi)
         uint8_t mon = recv_buf[i++];
         uint8_t day = recv_buf[i++];
         char date[11];
-        sprintf(date, "%d-%02hhu-%02hhu", year, mon, day);
+        snprintf(date, sizeof(date), "%d-%02hhu-%02hhu", year, mon, day);
         result += '\"' + String(date) + '\"';
         if (i != recv_buf[BYTE_COUNT] && recv_buf[i] != JSON_LEVEL_UP)
           result += ", ";
@@ -277,7 +281,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi)
         uint8_t min = recv_buf[i++];
         uint8_t sec = recv_buf[i++];
         char time[11];
-        sprintf(time, "%02hhu:%02hhu:%02hhu", hour, min, sec);
+        snprintf(time, sizeof(time), "%02hhu:%02hhu:%02hhu", hour, min, sec);
 
         result += '\"' + String(time) + '\"';
         if (i != recv_buf[BYTE_COUNT] && recv_buf[i] != JSON_LEVEL_UP)
@@ -289,8 +293,8 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi)
     case STRING:
     {
       char unpack_buf_cstr[JSON_MAX_LEN_FIELD];
-      strcpy(unpack_buf_cstr, (char *)&recv_buf[i]);
-      i += strlen((char *)&recv_buf[i]) + 1;
+      snprintf(unpack_buf_cstr, sizeof(unpack_buf_cstr), "%s", reinterpret_cast<char *>(&recv_buf[i]));
+      i += strlen(reinterpret_cast<char *>(&recv_buf[i])) + 1;
       result += '\"' + String(unpack_buf_cstr) + '\"';
       if (i != recv_buf[BYTE_COUNT] && recv_buf[i] != JSON_LEVEL_UP)
         result += ", ";
@@ -341,7 +345,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi)
         int8_t integer = num / quick_pow10(dec_places);
         uint8_t fraction = abs(num) % quick_pow10(dec_places);
         char num_str[18];
-        sprintf(num_str, "%d.%0*d", integer, dec_places, fraction);
+        snprintf(num_str, sizeof(num_str), "%d.%0*d", integer, dec_places, fraction);
         if (integer == 0 && num < 0)
           result += '-';
         result += String(num_str);
@@ -358,7 +362,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi)
         int16_t integer = num / quick_pow10(dec_places);
         uint16_t fraction = abs(num) % quick_pow10(dec_places);
         char num_str[18];
-        sprintf(num_str, "%d.%0*d", integer, dec_places, fraction);
+        snprintf(num_str, sizeof(num_str), "%d.%0*d", integer, dec_places, fraction);
         if (integer == 0 && num < 0)
           result += '-';
         result += String(num_str);
@@ -375,7 +379,7 @@ String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi)
         int32_t integer = num / quick_pow10(dec_places);
         uint32_t fraction = abs(num) % quick_pow10(dec_places);
         char num_str[18];
-        sprintf(num_str, "%i.%0*u", integer, dec_places, fraction);
+        snprintf(num_str, sizeof(num_str), "%i.%0*u", integer, dec_places, fraction);
         if (integer == 0 && num < 0)
           result += '-';
         result += String(num_str);

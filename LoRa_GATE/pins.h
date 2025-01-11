@@ -1,5 +1,7 @@
-#ifndef Pins_Arduino_h
-#define Pins_Arduino_h
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
+#ifndef Pins_Arduino_h // NOLINT
+#define Pins_Arduino_h // NOLINT
 
 #include <stdint.h>
 
@@ -71,4 +73,4 @@ static const uint8_t PIN_8 = 8;
 static const uint8_t PIN_15 = 15;
 static const uint8_t PIN_16 = 16;
 
-#endif /* Pins_Arduino_h */
+#endif // Pins_Arduino_h // NOLINT

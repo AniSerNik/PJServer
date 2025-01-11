@@ -1,19 +1,12 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#include "pins.h"
-#include <Arduino.h>
-#include <FreeRTOS.h>
-#include <string>
-#include <queue.h>
-#include <semphr.h>
-#include <WiFi.h>
-
-#include "main.h"
-#include "lora.h"
-#include "wifi_d.h"
-#include "dataprocess.h"
-#include "garbagecollector.h"
-#include "settings.h"
+#include <pins.h>
+#include <main.h>
+#include <lora_d.h>
+#include <wifi_d.h>
+#include <dataprocess.h>
+#include <garbagecollector.h>
+#include <settings.h>
 
 // Глобальные переменные
 std::unordered_map<uint8_t, deviceInfo> devicesInfo;
