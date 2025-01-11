@@ -10,9 +10,9 @@ void garbageCollectorTask(void *pvParameters)
 {
   while (1)
   {
-    printf("Запущен сбор мусора\n");
     if (xSemaphoreTake(devicesInfoMutex, portMAX_DELAY))
     {
+      printf("Запущен сбор мусора\n");
       auto it = devicesInfo.begin();
       while (it != devicesInfo.end())
       {

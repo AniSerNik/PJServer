@@ -107,7 +107,7 @@ void processPackageTask(void *pvParameters)
           break;
         }
 
-        // Обновляем время последнего сообщения
+        // Обновляем время последнего сообщения для очистки мусора
         if (devicesInfo.find(recv_packet->from) != devicesInfo.end())
         {
           devicesInfo[recv_packet->from].lastSendTime = millis();

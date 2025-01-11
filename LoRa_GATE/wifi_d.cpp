@@ -98,7 +98,7 @@ void timeSyncTask(void *pvParameters)
     {
       configTime(UTC_OFFSET, 0, net_ntp);
       if (!getLocalTime(&timeinfo))
-        printf("Не удалось получить текущее время");
+        printf("Не удалось получить текущее время\n");
       char timeStr[64];
       strftime(timeStr, sizeof(timeStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
       printf("Синхронизировано: %s\n", timeStr);
@@ -144,5 +144,6 @@ static void wifiConnect()
       else
         printf("Ошибка подключения к WiFi\n");
     }
+    xSemaphoreGive(wifiConnectMutex);
   }
 };

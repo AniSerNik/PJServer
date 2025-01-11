@@ -57,7 +57,7 @@ void setup()
       "LoRa Receive Task", // Имя задачи
       4096,                // Размер стека
       NULL,                // Параметры задачи
-      3,                   // Приоритет
+      5,                   // Приоритет
       NULL,                // Дескриптор задачи
       0);                  // Ядро
 
@@ -66,61 +66,57 @@ void setup()
       "Send Task",
       4096,
       NULL,
-      4,
+      6,
       NULL,
       0);
 
-  xTaskCreatePinnedToCore(
+  xTaskCreate(
       processPackageTask,
       "Process Package Task",
       8192,
       NULL,
-      2,
-      NULL,
-      1);
+      4,
+      NULL);
 
-  xTaskCreatePinnedToCore(
+  xTaskCreate(
       sendToServerTask,
       "Send To Server Task",
       4096,
       NULL,
-      2,
-      NULL,
-      1);
+      3,
+      NULL);
 
-  xTaskCreatePinnedToCore(
+  xTaskCreate(
       garbageCollectorTask,
       "Garbage Collector Task",
       4096,
       NULL,
       2,
-      NULL,
-      1);
+      NULL);
 
-  xTaskCreatePinnedToCore(
+  xTaskCreate(
       gatePingTask,
       "Gate Ping Task",
       4096,
       NULL,
       1,
-      NULL,
-      1);
-  xTaskCreatePinnedToCore(
+      NULL);
+
+  xTaskCreate(
       displayTask,
       "Display Task",
       4096,
       NULL,
       1,
-      NULL,
-      1);
-  xTaskCreatePinnedToCore(
+      NULL);
+
+  xTaskCreate(
       timeSyncTask,
       "Time Sync Task",
       4096,
       NULL,
       2,
-      NULL,
-      1);
+      NULL);
 }
 
 void loop()

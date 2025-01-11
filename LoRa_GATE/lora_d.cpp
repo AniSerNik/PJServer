@@ -3,6 +3,7 @@
 #include "headers/pins.h"
 #include "headers/lora_d.h"
 #include "headers/settings.h"
+#include "headers/main.h"
 #include <RH_RF95.h>
 #include <RHReliableDatagram.h>
 #include <Arduino.h>

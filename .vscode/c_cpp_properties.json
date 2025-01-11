@@ -9,9 +9,9 @@
             "name": "PlatformIO",
             "includePath": [
                 "C:/LilyGo-LoRa-Series/LoRa_GATE",
-                "C:/LilyGo-LoRa-Series/lib/RadioHead",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
+                "C:/LilyGo-LoRa-Series/lib/RadioHead",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                 "C:/LilyGo-LoRa-Series/lib/GyverOLED/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",
@@ -249,9 +249,9 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
                     "C:/LilyGo-LoRa-Series/LoRa_GATE",
-                    "C:/LilyGo-LoRa-Series/lib/RadioHead",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
+                    "C:/LilyGo-LoRa-Series/lib/RadioHead",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WiFi/src",
                     "C:/LilyGo-LoRa-Series/lib/GyverOLED/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src",

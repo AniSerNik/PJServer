@@ -16,6 +16,9 @@
 // Включение поддержки дедупликации
 #define RH_ENABLE_EXPLICIT_RETRY_DEDUP 1
 
+// Отслеживание переполнения стека
+#define configCHECK_FOR_STACK_OVERFLOW 2
+
 // Настройки модуля LoRa
 #define LORA_TXPOWER 20
 #define LORA_FREQUNCY 869.2
@@ -26,16 +29,16 @@
 // Адрес шлюза LoRa
 #define SERVER_ADDRESS 200
 
-// Очистка мусора, в миллисекундах (21600e3)
-#define GARBAGE_COLLECT_COOLDOWN 21600000
-// Таймаут на очистку данных об устройстве, в миллисекундах (3600e3)
-#define DATACOL_TIMESTORE 3600000
-// Ping работы шлюза
-#define GATEWORKPING_INTERVAL 300000 // в миллисекундах (300e3)
+// Очистка мусора
+#define GARBAGE_COLLECT_COOLDOWN 21600000 // 6 часов в миллисекундах (21600e3)
+// Интервал синхронизации реального времени
+#define TIME_SYNC_INTERVAL 43200000 // 12 часов в миллисекундах (43200e3)
+// Таймаут на очистку данных об устройстве
+#define DATACOL_TIMESTORE 7200000 // 2 часа в миллисекундах (7200e3)
+// Интервал отправки данных о шлюзе
+#define GATEWORKPING_INTERVAL 300000 // 5 минут в миллисекундах (300e3)
 // Интервал отрисовки данных на дисплее
-#define DISPLAY_INTERVAL 10000 // в миллисекундах (10e3)
-// Интервал синхронизации времени
-#define TIME_SYNC_INTERVAL 3600000 // в миллисекундах (1e3)
+#define DISPLAY_INTERVAL 10000 // 10 секунд в миллисекундах (10e3)
 
 // Параметры для генерации JSON
 #define PARAM_SerialDevice "0"
