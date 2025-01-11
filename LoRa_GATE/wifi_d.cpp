@@ -2,6 +2,8 @@
 
 #include "headers/wifi_d.h"
 #include "headers/settings.h"
+#include "headers/main.h"
+#include "headers/dataprocess.h"
 #include <HTTPClient.h>
 
 // Очередь для отправки данных на сервер
@@ -11,6 +13,9 @@ QueueHandle_t wifiSendQueue;
 IPAddress staticIP(net_ip);
 IPAddress gateway(net_gateway_ip);
 IPAddress mask(net_mask);
+
+// Структура для хранения информации о времени
+struct tm timeinfo;
 
 // Задача периодической отправки пинга шлюза
 void gatePingTask(void *pvParameters)
@@ -28,7 +33,7 @@ void gatePingTask(void *pvParameters)
     json += "\"Akey\":\"" + String(PARAM_Akey) + "\",";
     json += "\"Serial\":\"" + String(PARAM_SerialDevice) + "\",";
     json += "\"Version\":\"" + String(PARAM_VersionDevice) + "\",";
-    json += "\"Recived\":\"" + String(packetcntr) + "\",";
+    json += "\"Recived\":\"" + String(receivedPacketCounter) + "\",";
     json += "\"RSSI\":\"" + String(WiFi.RSSI()) + "\"}";
     json += "}";
     printf("JSON информация о шлюзе:\n%s\n", json.c_str());
@@ -78,31 +83,66 @@ void sendToServerTask(void *pvParameters)
   }
 }
 
+// Задача периодической синхронизации времени
+void timeSyncTask(void *pvParameters)
+{
+  while (1)
+  {
+    printf("\nЗапущена синхронизация времени\n");
+    if (WiFi.status() != WL_CONNECTED)
+    {
+      wifiConnect();
+    }
+
+    if (WiFi.status() == WL_CONNECTED)
+    {
+      configTime(UTC_OFFSET, 0, net_ntp);
+      if (!getLocalTime(&timeinfo))
+        printf("Не удалось получить текущее время");
+      char timeStr[64];
+      strftime(timeStr, sizeof(timeStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
+      printf("Синхронизировано: %s\n", timeStr);
+    }
+    else
+    {
+      printf("Ошибка синхронизации времени, нет WiFi подключения\n");
+    }
+    vTaskDelay(TIME_SYNC_INTERVAL / portTICK_PERIOD_MS);
+  }
+}
+
 // Подключение к Wi-Fi
 static void wifiConnect()
 {
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-
-  // Настройка статического IP
-  // if (!WiFi.config(staticIP, gateway, mask))
-  //  printf("Не удалось выставить настроки подключения к Wi-Fi\n");
-
-  printf("Подключение к WiFi\n");
-  uint8_t i = 1;
-  while (WiFi.status() != WL_CONNECTED)
+  if (xSemaphoreTake(wifiConnectMutex, portMAX_DELAY) == pdTRUE)
   {
-    vTaskDelay(WIFI_CONNECT_COOLDOWN / portTICK_PERIOD_MS);
-    printf("Попытка подключения к Wi-Fi %i/%i\n", i, WIFI_CONNECT_RETRY_COUNT);
-    if (i >= WIFI_CONNECT_RETRY_COUNT)
-      break;
-    i++;
+    if (WiFi.status() != WL_CONNECTED)
+    {
+      WiFi.mode(WIFI_STA);
+      WiFi.begin(ssid, password);
+
+      // Настройка статического IP
+      if (CONFIG_STATIC_IP)
+        if (!WiFi.config(staticIP, gateway, mask))
+          printf("Не удалось выставить настроки подключения к Wi-Fi\n");
+
+      printf("Подключение к WiFi\n");
+      uint8_t i = 1;
+      while (WiFi.status() != WL_CONNECTED)
+      {
+        vTaskDelay(WIFI_CONNECT_COOLDOWN / portTICK_PERIOD_MS);
+        printf("Попытка подключения к Wi-Fi %i/%i\n", i, WIFI_CONNECT_RETRY_COUNT);
+        if (i >= WIFI_CONNECT_RETRY_COUNT)
+          break;
+        i++;
+      }
+      if (WiFi.status() == WL_CONNECTED)
+      {
+        printf("\nУспешное подключение к Wi-Fi.\nSSID: %s\nIP адрес: %s\nRSSI: %i\n",
+               WiFi.SSID().c_str(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
+      }
+      else
+        printf("Ошибка подключения к WiFi\n");
+    }
   }
-  if (WiFi.status() == WL_CONNECTED)
-  {
-    printf("\nУспешное подключение к Wi-Fi.\nSSID: %s\nIP адрес: %s\nRSSI: %i\n",
-           WiFi.SSID().c_str(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
-  }
-  else
-    printf("Ошибка подключения к WiFi\n");
 };

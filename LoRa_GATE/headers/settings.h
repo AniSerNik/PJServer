@@ -1,7 +1,7 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#ifndef LORA_GATE_SETTINGS_H_
-#define LORA_GATE_SETTINGS_H_
+#ifndef LORA_GATE_HEADERS_SETTINGS_H_
+#define LORA_GATE_HEADERS_SETTINGS_H_
 
 #include <Arduino.h>
 
@@ -32,13 +32,18 @@
 #define DATACOL_TIMESTORE 3600000
 // Ping работы шлюза
 #define GATEWORKPING_INTERVAL 300000 // в миллисекундах (300e3)
-// Отрисовка данных на дисплее
-#define DISPLAY_INTERVAL 1000 // в миллисекундах (1e3)
+// Интервал отрисовки данных на дисплее
+#define DISPLAY_INTERVAL 10000 // в миллисекундах (10e3)
+// Интервал синхронизации времени
+#define TIME_SYNC_INTERVAL 3600000 // в миллисекундах (1e3)
 
 // Параметры для генерации JSON
 #define PARAM_SerialDevice "0"
 #define PARAM_Akey "NeKKxx2"
 #define PARAM_VersionDevice "TestSecond"
+
+// Конфигурировать ли статический IP
+#define CONFIG_STATIC_IP 0
 
 // Настройки Wi-Fi (в settings.cpp)
 extern const char *ssid;
@@ -47,10 +52,12 @@ extern const uint8_t net_ip[4];
 extern const uint8_t net_gateway_ip[4];
 extern const uint8_t net_mask[4];
 
+// Адрес NTP сервера
+extern const char *net_ntp;
+// UTC смещение в секундах
+#define UTC_OFFSET 10800 // Timezone: UTC+3
+
 // Адреса серверов (в settings.cpp)
 extern const String servers[3];
 
-// Счетчик отправленных пакетов
-extern uint64_t packetcntr;
-
-#endif // LORA_GATE_SETTINGS_H_
+#endif // LORA_GATE_HEADERS_SETTINGS_H_

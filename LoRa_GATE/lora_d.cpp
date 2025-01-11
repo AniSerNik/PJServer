@@ -24,7 +24,6 @@ void loraReceiveTask(void *pvParameters)
         {
           printf("Failed to send to loraReciveQueue\n");
         }
-        packetcntr++;
       }
     }
     vTaskDelay(10 / portTICK_PERIOD_MS); // Задержка на вызов manager.available()

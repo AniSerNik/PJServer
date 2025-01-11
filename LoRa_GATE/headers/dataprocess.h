@@ -1,7 +1,7 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#ifndef LORA_GATE_DATAPROCESS_H_
-#define LORA_GATE_DATAPROCESS_H_
+#ifndef LORA_GATE_HEADERS_DATAPROCESS_H_
+#define LORA_GATE_HEADERS_DATAPROCESS_H_
 
 #include <Arduino.h>
 
@@ -46,13 +46,24 @@
 void processPackageTask(void *pvParameters);
 
 // Функции
-String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t lastRssi); // Декодирование JSON из байтов
-String getKeyFromId(uint8_t idKey);                                              // Получение ключа по ID
-int64_t quick_pow10(int n);                                                      // Быстрое возведение 10 в степень
-void registationKeys(uint8_t from, uint8_t *recv_buf);                           // Функция регистрации ключей
-void deleteInfo(uint8_t from);                                                   // Удаление инфрмации об устройстве
+String decodeJsonFromBytes(uint8_t *recv_buf, uint8_t dev_id, int16_t rssi); // Декодирование JSON из байтов
+String getKeyFromId(uint8_t idKey);                                          // Получение ключа по ID
+int64_t quick_pow10(int n);                                                  // Быстрое возведение 10 в степень
+void registationKeys(uint8_t from, uint8_t *recv_buf);                       // Функция регистрации ключей
+void deleteInfo(uint8_t from);                                               // Удаление инфрмации об устройстве
 
 // Очередь для обработки данных
 extern QueueHandle_t processQueue;
 
-#endif // LORA_GATE_DATAPROCESS_H_
+// Счетчик полученных пакетов с JSON
+extern uint64_t receivedPacketCounter;
+// Данные последнего полученного пакета
+struct packetInfo
+{
+    uint8_t from;
+    int16_t rssi;
+    struct tm date;
+};
+extern struct packetInfo lastPacketData;
+
+#endif // LORA_GATE_HEADERS_DATAPROCESS_H_

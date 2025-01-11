@@ -11,6 +11,10 @@
 // Очередь для отправки данных на сервер
 QueueHandle_t processQueue;
 
+// Счетчик полученных пакетов с JSON
+uint64_t receivedPacketCounter = 0;
+packetInfo lastPacketData = {0};
+
 // Задача обработки пакетов
 void processPackageTask(void *pvParameters)
 {
@@ -47,6 +51,12 @@ void processPackageTask(void *pvParameters)
             free(curDeviceInfo.device_buf);
             curDeviceInfo.device_buf = NULL;
             curDeviceInfo.device_buf_size = 0;
+
+            receivedPacketCounter++;                 // Количество полученных пакетов
+            lastPacketData.from = recv_packet->from; // ID устройства
+            lastPacketData.rssi = driver.lastRssi(); // RSSI
+            getLocalTime(&lastPacketData.date);      // Дата и время
+
             // Отправляем JSON в очередь отправки на сервер, если есть ключи
             if (xQueueSend(wifiSendQueue, &decoded_json, portMAX_DELAY) != pdPASS)
             {
@@ -62,6 +72,12 @@ void processPackageTask(void *pvParameters)
             decoded_json = decodeJsonFromBytes(recv_packet->buf, recv_packet->from, driver.lastRssi());
             send_packet->buf[send_packet->buf[BYTE_COUNT]++] = REPLY_TRUE;
             printf("\nРаскодированный JSON от 0x%X:\n%s\n", recv_packet->from, decoded_json.c_str());
+
+            receivedPacketCounter++;                 // Количество полученных пакетов
+            lastPacketData.from = recv_packet->from; // ID устройства
+            lastPacketData.rssi = driver.lastRssi(); // RSSI
+            getLocalTime(&lastPacketData.date);      // Дата и время
+
             // Отправляем JSON в очередь отправки на сервер, если нет ключей
             if (xQueueSend(wifiSendQueue, &decoded_json, portMAX_DELAY) != pdPASS)
             {

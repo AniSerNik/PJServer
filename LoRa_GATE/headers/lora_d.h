@@ -1,7 +1,7 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#ifndef LORA_GATE_LORA_D_H_
-#define LORA_GATE_LORA_D_H_
+#ifndef LORA_GATE_HEADERS_LORA_D_H_
+#define LORA_GATE_HEADERS_LORA_D_H_
 
 #include <RH_RF95.h>
 #include <RHReliableDatagram.h>
@@ -27,4 +27,4 @@ void loraSendTask(void *pvParameters);    // Отправка пакетов
 extern QueueHandle_t loraReciveQueue; // Полученные пакеты
 extern QueueHandle_t loraSendQueue;   // Пакеты на отправку
 
-#endif // LORA_GATE_LORA_D_H_
+#endif // LORA_GATE_HEADERS_LORA_D_H_

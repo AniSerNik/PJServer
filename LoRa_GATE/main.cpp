@@ -12,6 +12,7 @@
 // Глобальные переменные
 std::unordered_map<uint8_t, deviceInfo> devicesInfo;
 SemaphoreHandle_t devicesInfoMutex;
+SemaphoreHandle_t wifiConnectMutex;
 
 void setup()
 {
@@ -43,6 +44,8 @@ void setup()
 
   // Инициализация семафора на доступ к информации об устройствах
   devicesInfoMutex = xSemaphoreCreateMutex();
+  // Инициализация семафора на подключение к WiFi
+  wifiConnectMutex = xSemaphoreCreateMutex();
 
   // Создание задач
   xTaskCreatePinnedToCore(
@@ -86,7 +89,7 @@ void setup()
       "Garbage Collector Task",
       4096,
       NULL,
-      1,
+      2,
       NULL,
       1);
 
@@ -98,13 +101,20 @@ void setup()
       1,
       NULL,
       1);
-
   xTaskCreatePinnedToCore(
       displayTask,
       "Display Task",
       4096,
       NULL,
       1,
+      NULL,
+      1);
+  xTaskCreatePinnedToCore(
+      timeSyncTask,
+      "Time Sync Task",
+      4096,
+      NULL,
+      2,
       NULL,
       1);
 }

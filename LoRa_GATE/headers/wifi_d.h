@@ -1,7 +1,7 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#ifndef LORA_GATE_WIFI_D_H_
-#define LORA_GATE_WIFI_D_H_
+#ifndef LORA_GATE_HEADERS_WIFI_D_H_
+#define LORA_GATE_HEADERS_WIFI_D_H_
 
 #include <Arduino.h>
 #include <WiFi.h>
@@ -16,6 +16,7 @@ extern QueueHandle_t wifiSendQueue;
 // Задачи
 void sendToServerTask(void *pvParameters);
 void gatePingTask(void *pvParameters);
+void timeSyncTask(void *pvParameters);
 
 // Подключение к Wi-Fi
 static void wifiConnect();
@@ -25,4 +26,7 @@ extern IPAddress staticIP;
 extern IPAddress gateway;
 extern IPAddress mask;
 
-#endif // LORA_GATE_WIFI_D_H_
+// Структура для хранения информации о времени
+extern struct tm timeinfo;
+
+#endif // LORA_GATE_HEADERS_WIFI_D_H_

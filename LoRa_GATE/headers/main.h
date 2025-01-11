@@ -1,7 +1,7 @@
 // Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
 
-#ifndef LORA_GATE_MAIN_H_
-#define LORA_GATE_MAIN_H_
+#ifndef LORA_GATE_HEADERS_MAIN_H_
+#define LORA_GATE_HEADERS_MAIN_H_
 
 #include <Arduino.h>
 #include <FreeRTOS.h>
@@ -22,5 +22,6 @@ typedef struct deviceInfo
 // Глобальные переменные
 extern std::unordered_map<uint8_t, deviceInfo> devicesInfo;
 extern SemaphoreHandle_t devicesInfoMutex;
+extern SemaphoreHandle_t wifiConnectMutex;
 
-#endif // LORA_GATE_MAIN_H_
+#endif // LORA_GATE_HEADERS_MAIN_H_
