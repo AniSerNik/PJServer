@@ -70,8 +70,8 @@ static void wifiConnect() {
   WiFi.begin(ssid, password);
   
   // Настройка статического IP
-  if (!WiFi.config(staticIP, gateway, mask))
-    printf("Не удалось выставить настроки подключения к Wi-Fi\n");
+  //if (!WiFi.config(staticIP, gateway, mask))
+  //  printf("Не удалось выставить настроки подключения к Wi-Fi\n");
   
   printf("Подключение к WiFi\n");
   uint8_t i = 1;
