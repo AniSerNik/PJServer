@@ -495,7 +495,7 @@
                 "ARDUINO_EVENT_RUNNING_CORE=0",
                 "ARDUINO_USB_MODE=1",
                 "ARDUINO_USB_CDC_ON_BOOT=1",
-                "CORE_DEBUG_LEVEL=0",
+                "CORE_DEBUG_LEVEL=1",
                 "T3_S3_V1_2_SX1276",
                 "HAVE_CONFIG_H",
                 "MBEDTLS_CONFIG_FILE=\"mbedtls/esp_config.h\"",
