@@ -36,6 +36,10 @@ void setup()
   driver.setSpreadingFactor(LORA_SPREADING_FACTOR);
   driver.setModeRx();
 
+  // Настройка диода
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, LOW);
+
   // Инициализация очередей
   loraReciveQueue = xQueueCreate(16, sizeof(loraPacket));
   loraSendQueue = xQueueCreate(16, sizeof(loraPacket));
