@@ -1,3 +1,5 @@
+// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+
 #include "pins.h"
 #include <Arduino.h>
 #include <FreeRTOS.h>
@@ -17,9 +19,11 @@
 std::unordered_map<uint8_t, deviceInfo> devicesInfo;
 SemaphoreHandle_t devicesInfoMutex;
 
-void setup()  {
+void setup()
+{
   Serial.begin(9600);
-  while (!Serial); // Останавливает программу, пока не подключен USB
+  while (!Serial)
+    ; // Останавливает программу, пока не подключен USB
   printf("\n");
 
   // Инициализация LoRa
@@ -34,7 +38,7 @@ void setup()  {
   driver.setFrequency(LORA_FREQUNCY);
   driver.setCodingRate4(LORA_CODING_RATE4);
   driver.setSignalBandwidth(LORA_SIGNAL_BANDWIDTH);
-  driver.setSpreadingFactor(LORA_SPREADING_FACTOR); 
+  driver.setSpreadingFactor(LORA_SPREADING_FACTOR);
   driver.setModeRx();
 
   // Инициализация очередей
@@ -48,64 +52,62 @@ void setup()  {
 
   // Создание задач
   xTaskCreatePinnedToCore(
-    loraReceiveTask,      // Функция задачи
-    "LoRa Receive Task",  // Имя задачи
-    4096,                 // Размер стека
-    NULL,                 // Параметры задачи
-    4,                    // Приоритет
-    NULL,                 // Дескриптор задачи
-    0);                   // Ядро
-
-    xTaskCreatePinnedToCore(
-    loraSendTask,
-    "Send Task",
-    4096,
-    NULL,
-    5,
-    NULL,
-    0);
+      loraReceiveTask,     // Функция задачи
+      "LoRa Receive Task", // Имя задачи
+      4096,                // Размер стека
+      NULL,                // Параметры задачи
+      4,                   // Приоритет
+      NULL,                // Дескриптор задачи
+      0);                  // Ядро
 
   xTaskCreatePinnedToCore(
-    processPackageTask,
-    "Process Package Task",
-    8192,
-    NULL,
-    2,
-    NULL,
-    1);
+      loraSendTask,
+      "Send Task",
+      4096,
+      NULL,
+      5,
+      NULL,
+      0);
 
   xTaskCreatePinnedToCore(
-    sendToServerTask,
-    "Send To Server Task",
-    4096,
-    NULL,
-    3,
-    NULL,
-    1);
+      processPackageTask,
+      "Process Package Task",
+      8192,
+      NULL,
+      2,
+      NULL,
+      1);
 
   xTaskCreatePinnedToCore(
-    garbageCollectorTask,
-    "Garbage Collector Task",
-    4096,
-    NULL,
-    1,
-    NULL,
-    1);
+      sendToServerTask,
+      "Send To Server Task",
+      4096,
+      NULL,
+      3,
+      NULL,
+      1);
 
   xTaskCreatePinnedToCore(
-    gatePingTask,
-    "Gate Ping Task",
-    4096,
-    NULL,
-    1,
-    NULL,
-    1);
+      garbageCollectorTask,
+      "Garbage Collector Task",
+      4096,
+      NULL,
+      1,
+      NULL,
+      1);
+
+  xTaskCreatePinnedToCore(
+      gatePingTask,
+      "Gate Ping Task",
+      4096,
+      NULL,
+      1,
+      NULL,
+      1);
 }
 
-void loop() {
+void loop()
+{
   // Пусто, все работает в задачах FreeRTOS
   vTaskDelay(portMAX_DELAY);
 }
-
-
-

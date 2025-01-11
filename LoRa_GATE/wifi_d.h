@@ -13,7 +13,7 @@ extern QueueHandle_t wifiSendQueue;
 
 // Задачи
 void sendToServerTask(void *pvParameters);
-void gatePingTask(void *pvParameters); 
+void gatePingTask(void *pvParameters);
 
 // Подключение к Wi-Fi
 static void wifiConnect();

@@ -5,22 +5,29 @@
 #include "main.h"
 
 // Задача сбора мусора (удаление информации о устройствах которые не отвечают)
-void garbageCollectorTask(void *pvParameters) {
-  while (1) {
+void garbageCollectorTask(void *pvParameters)
+{
+  while (1)
+  {
     printf("Запущен сбор мусора\n");
-    if(xSemaphoreTake(devicesInfoMutex, portMAX_DELAY)){
+    if (xSemaphoreTake(devicesInfoMutex, portMAX_DELAY))
+    {
       auto it = devicesInfo.begin();
-      while (it != devicesInfo.end()) {
+      while (it != devicesInfo.end())
+      {
         uint8_t nowId = it->first;
         unsigned long elapsed_time = millis() - it->second.lastSendTime;
-        if(elapsed_time > DATACOL_TIMESTORE) {
-          if(it->second.device_buf != NULL){
+        if (elapsed_time > DATACOL_TIMESTORE)
+        {
+          if (it->second.device_buf != NULL)
+          {
             free(it->second.device_buf);
           }
           it = devicesInfo.erase(it);
           printf("Информация о 0x%X удалена\n", nowId);
         }
-        else {
+        else
+        {
           ++it;
         }
       }

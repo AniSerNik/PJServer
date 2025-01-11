@@ -9,7 +9,8 @@
 #include <string>
 
 // Структура информации об устройстве
-typedef struct deviceInfo {
+typedef struct deviceInfo
+{
   std::unordered_map<uint8_t, std::string> maskKeys;
   unsigned long int lastSendTime;
   uint8_t *device_buf;

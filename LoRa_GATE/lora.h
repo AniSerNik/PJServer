@@ -6,9 +6,10 @@
 #include <queue.h>
 
 // Наш LoRa Packet
-struct loraPacket {
-  uint8_t from; // id устройства в сети
-  uint8_t len; // Длина буфрера
+struct loraPacket
+{
+  uint8_t from;                         // id устройства в сети
+  uint8_t len;                          // Длина буфрера
   uint8_t buf[RH_RF95_MAX_MESSAGE_LEN]; // Буфер для данных
 };
 
@@ -18,10 +19,10 @@ extern RHReliableDatagram manager;
 
 // Задачи
 void loraReceiveTask(void *pvParameters); // Получение пакетов
-void loraSendTask(void *pvParameters); // Отправка пакетов
+void loraSendTask(void *pvParameters);    // Отправка пакетов
 
 // Очереди
 extern QueueHandle_t loraReciveQueue; // Полученные пакеты
-extern QueueHandle_t loraSendQueue; // Пакеты на отправку
+extern QueueHandle_t loraSendQueue;   // Пакеты на отправку
 
 #endif // LORA_H

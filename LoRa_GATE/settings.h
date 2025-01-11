@@ -3,11 +3,13 @@
 
 #include <Arduino.h>
 
-#define printBuf(buf) do { \
-  for(int ij = 0; ij < buf[BYTE_COUNT]; ij++) \
-    printf("%d ", buf[ij]); \
-  printf("\n\n"); \
-} while(0)
+#define printBuf(buf)                            \
+  do                                             \
+  {                                              \
+    for (int ij = 0; ij < buf[BYTE_COUNT]; ij++) \
+      printf("%d ", buf[ij]);                    \
+    printf("\n\n");                              \
+  } while (0)
 
 // Включение поддержки дедупликации
 #define RH_ENABLE_EXPLICIT_RETRY_DEDUP 1
@@ -35,8 +37,8 @@
 #define PARAM_VersionDevice "TestSecond"
 
 // Настройки Wi-Fi (в settings.cpp)
-extern const char* ssid;
-extern const char* password;
+extern const char *ssid;
+extern const char *password;
 extern const uint8_t net_ip[4];
 extern const uint8_t net_gateway_ip[4];
 extern const uint8_t net_mask[4];
