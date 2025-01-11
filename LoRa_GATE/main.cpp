@@ -17,8 +17,6 @@ SemaphoreHandle_t wifiConnectMutex;
 void setup()
 {
   Serial.begin(9600);
-  while (!Serial)
-    ; // Останавливает программу, пока не подключен USB
   printf("\n");
 
   // Инициализация LoRa
