@@ -27,18 +27,27 @@
 #define LORA_SPREADING_FACTOR 9
 
 // Адрес шлюза LoRa
-#define SERVER_ADDRESS 200
+#define SERVER_ADDRESS 200U
 
 // Очистка мусора
-#define GARBAGE_COLLECT_COOLDOWN 21600000 // 6 часов в миллисекундах (21600e3)
+#define GARBAGE_COLLECT_COOLDOWN 21600000U // 6 часов в миллисекундах (21600e3)
 // Интервал синхронизации реального времени
-#define TIME_SYNC_INTERVAL 43200000 // 12 часов в миллисекундах (43200e3)
+#define TIME_SYNC_INTERVAL 43200000U // 12 часов в миллисекундах (43200e3)
 // Таймаут на очистку данных об устройстве
-#define DATACOL_TIMESTORE 7200000 // 2 часа в миллисекундах (7200e3)
+#define DATACOL_TIMESTORE 7200000U // 2 часа в миллисекундах (7200e3)
 // Интервал отправки данных о шлюзе
-#define GATEWORKPING_INTERVAL 300000 // 5 минут в миллисекундах (300e3)
+#define GATEWORKPING_INTERVAL 300000U // 5 минут в миллисекундах (300e3)
 // Интервал отрисовки данных на дисплее
-#define DISPLAY_INTERVAL 10000 // 10 секунд в миллисекундах (10e3)
+#define DISPLAY_INTERVAL 10000U // 10 секунд в миллисекундах (10e3)
+
+// Количество попыток синхронизации времени после подключения к Wi-Fi
+#define TIME_SYNC_RETRY_COUNT 5U
+// Количество попыток подключения к Wi-Fi
+#define WIFI_CONNECT_RETRY_COUNT 15U
+// Задержка на попытку подключения к Wi-Fi
+#define WIFI_CONNECT_COOLDOWN 1000U
+// Задержка на попытку синхронизации времени
+#define TIME_SYNC_DELAY 2000U
 
 // Параметры для генерации JSON
 #define PARAM_SerialDevice "0"

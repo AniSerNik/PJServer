@@ -4,8 +4,11 @@
 #include <Arduino.h>
 
 // Настройки подключения Wi-Fi
-const char *ssid = "MyNetWork";
-const char *password = "mmmmmmmm";
+// const char *ssid = "MyNetWork";
+// const char *password = "mmmmmmmm";
+
+const char *ssid = "rt451-Ext";
+const char *password = "apsI0gqvFn";
 
 const uint8_t net_ip[4] = {192, 168, 0, 95};
 const uint8_t net_gateway_ip[4] = {192, 168, 0, 1};

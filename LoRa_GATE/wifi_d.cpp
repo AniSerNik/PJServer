@@ -96,12 +96,25 @@ void timeSyncTask(void *pvParameters)
 
     if (WiFi.status() == WL_CONNECTED)
     {
-      configTime(UTC_OFFSET, 0, net_ntp);
-      if (!getLocalTime(&timeinfo))
-        printf("Не удалось получить текущее время\n");
-      char timeStr[64];
+      uint8_t retry_count = 1U;
+      while (retry_count <= TIME_SYNC_RETRY_COUNT)
+      {
+        configTime(UTC_OFFSET, 0U, net_ntp);
+        if (!getLocalTime(&timeinfo))
+        {
+          printf("Не удалось получить текущее время %u/%u\n", retry_count, TIME_SYNC_RETRY_COUNT);
+          retry_count++;
+          vTaskDelay(TIME_SYNC_DELAY / portTICK_PERIOD_MS);
+          continue;
+        }
+        else
+        {
+          break;
+        }
+      }
+      char timeStr[53];
       strftime(timeStr, sizeof(timeStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
-      printf("Синхронизировано: %s\n", timeStr);
+      printf("Синхронизировано задачей: %s\n", timeStr);
     }
     else
     {
@@ -127,19 +140,26 @@ static void wifiConnect()
           printf("Не удалось выставить настроки подключения к Wi-Fi\n");
 
       printf("Подключение к WiFi\n");
-      uint8_t i = 1;
+      uint8_t retry_count = 1U;
       while (WiFi.status() != WL_CONNECTED)
       {
         vTaskDelay(WIFI_CONNECT_COOLDOWN / portTICK_PERIOD_MS);
-        printf("Попытка подключения к Wi-Fi %i/%i\n", i, WIFI_CONNECT_RETRY_COUNT);
-        if (i >= WIFI_CONNECT_RETRY_COUNT)
+        printf("Попытка подключения к Wi-Fi %u/%u\n", retry_count, WIFI_CONNECT_RETRY_COUNT);
+        if (retry_count >= WIFI_CONNECT_RETRY_COUNT)
           break;
-        i++;
+        retry_count++;
       }
       if (WiFi.status() == WL_CONNECTED)
       {
         printf("\nУспешное подключение к Wi-Fi.\nSSID: %s\nIP адрес: %s\nRSSI: %i\n",
                WiFi.SSID().c_str(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
+        // Синхронизация времени при подключении к Wi-Fi
+        configTime(UTC_OFFSET, 0U, net_ntp);
+        if (!getLocalTime(&timeinfo))
+          printf("Не удалось получить текущее время %u/%u\n", retry_count, TIME_SYNC_RETRY_COUNT);
+        char timeStr[68];
+        strftime(timeStr, sizeof(timeStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
+        printf("Синхронизировано при подключении: %s\n", timeStr);
       }
       else
         printf("Ошибка подключения к WiFi\n");

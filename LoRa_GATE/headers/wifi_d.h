@@ -7,9 +7,6 @@
 #include <WiFi.h>
 #include <queue.h>
 
-#define WIFI_CONNECT_RETRY_COUNT 15
-#define WIFI_CONNECT_COOLDOWN 1000
-
 // Очередь для отправки данных на сервер
 extern QueueHandle_t wifiSendQueue;
 
