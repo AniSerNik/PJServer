@@ -18,11 +18,6 @@ void timeSyncTask(void *pvParameters);
 // Подключение к Wi-Fi
 static void wifiConnect();
 
-// Настройки Wi-Fi
-extern IPAddress staticIP;
-extern IPAddress gateway;
-extern IPAddress mask;
-
 // Структура для хранения информации о времени
 extern struct tm timeinfo;
 

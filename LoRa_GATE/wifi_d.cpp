@@ -9,10 +9,8 @@
 // Очередь для отправки данных на сервер
 QueueHandle_t wifiSendQueue;
 
-// Настройки Wi-Fi
-IPAddress staticIP(net_ip);
-IPAddress gateway(net_gateway_ip);
-IPAddress mask(net_mask);
+// Мьютекс для защиты функции wifiConnect
+extern SemaphoreHandle_t wifiConnectMutex;
 
 // Структура для хранения информации о времени
 struct tm timeinfo;
@@ -56,7 +54,6 @@ void sendToServerTask(void *pvParameters)
   {
     if (xQueueReceive(wifiSendQueue, &json, portMAX_DELAY))
     {
-
       if (WiFi.status() != WL_CONNECTED)
       {
         wifiConnect();
@@ -88,7 +85,6 @@ void timeSyncTask(void *pvParameters)
 {
   while (1)
   {
-    printf("\nЗапущена синхронизация времени\n");
     if (WiFi.status() != WL_CONNECTED)
     {
       wifiConnect();
@@ -99,7 +95,7 @@ void timeSyncTask(void *pvParameters)
       uint8_t retry_count = 1U;
       while (retry_count <= TIME_SYNC_RETRY_COUNT)
       {
-        configTime(UTC_OFFSET, 0U, net_ntp);
+        configTime(UTC_OFFSET, 0U, net_ntp.c_str());
         if (!getLocalTime(&timeinfo))
         {
           printf("Не удалось получить текущее время %u/%u\n", retry_count, TIME_SYNC_RETRY_COUNT);
@@ -132,38 +128,113 @@ static void wifiConnect()
     if (WiFi.status() != WL_CONNECTED)
     {
       WiFi.mode(WIFI_STA);
-      WiFi.begin(ssid, password);
 
-      // Настройка статического IP
-      if (CONFIG_STATIC_IP)
-        if (!WiFi.config(staticIP, gateway, mask))
-          printf("Не удалось выставить настроки подключения к Wi-Fi\n");
+      uint8_t bestNetworkIndex = -1;
+      int16_t bestRSSI = -256; // минимальное значение RSSI
 
-      printf("Подключение к WiFi\n");
-      uint8_t retry_count = 1U;
-      while (WiFi.status() != WL_CONNECTED)
+      for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
       {
-        vTaskDelay(WIFI_CONNECT_COOLDOWN / portTICK_PERIOD_MS);
-        printf("Попытка подключения к Wi-Fi %u/%u\n", retry_count, WIFI_CONNECT_RETRY_COUNT);
-        if (retry_count >= WIFI_CONNECT_RETRY_COUNT)
-          break;
-        retry_count++;
+        if (wifiNetworks[i].ssid.length() == 0)
+        {
+          continue;
+        }
+
+        // Настройка статического IP, если указано
+        if (wifiNetworks[i].useStaticSettings)
+        {
+          if (!WiFi.config(IPAddress(wifiNetworks[i].net_ip), IPAddress(wifiNetworks[i].net_gateway_ip), IPAddress(wifiNetworks[i].net_mask)))
+          {
+            printf("Не удалось выставить настройки подключения к Wi-Fi для сети %s\n", wifiNetworks[i].ssid.c_str());
+          }
+        }
+
+        WiFi.begin(wifiNetworks[i].ssid.c_str(), wifiNetworks[i].password.c_str());
+
+        printf("Подключение к WiFi сети \"%s\"\n", wifiNetworks[i].ssid.c_str());
+        uint8_t retry_count = 0;
+        while (WiFi.status() != WL_CONNECTED && retry_count < WIFI_CONNECT_RETRY_COUNT)
+        {
+          vTaskDelay(WIFI_CONNECT_COOLDOWN / portTICK_PERIOD_MS);
+          printf("Попытка подключения к Wi-Fi %i/%i\n", retry_count + 1, WIFI_CONNECT_RETRY_COUNT);
+          retry_count++;
+        }
+
+        if (WiFi.status() == WL_CONNECTED)
+        {
+          int rssi = WiFi.RSSI();
+          printf("Успешно подключение к WiFi сети \"%s\", RSSI: %d\n", wifiNetworks[i].ssid.c_str(), rssi);
+          if (rssi > bestRSSI)
+          {
+            bestRSSI = rssi;
+            bestNetworkIndex = i;
+          }
+          WiFi.disconnect();
+        }
+        else
+        {
+          printf("Ошибка подключения к WiFi сети \"%s\"\n", wifiNetworks[i].ssid.c_str());
+        }
       }
-      if (WiFi.status() == WL_CONNECTED)
+
+      if (bestNetworkIndex != -1)
       {
-        printf("\nУспешное подключение к Wi-Fi.\nSSID: %s\nIP адрес: %s\nRSSI: %i\n",
-               WiFi.SSID().c_str(), WiFi.localIP().toString().c_str(), WiFi.RSSI());
-        // Синхронизация времени при подключении к Wi-Fi
-        configTime(UTC_OFFSET, 0U, net_ntp);
-        if (!getLocalTime(&timeinfo))
-          printf("Не удалось получить текущее время %u/%u\n", retry_count, TIME_SYNC_RETRY_COUNT);
-        char timeStr[68];
-        strftime(timeStr, sizeof(timeStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
-        printf("Синхронизировано при подключении: %s\n", timeStr);
+        vTaskDelay(WIFI_CONNECT_COOLDOWN * 3 / portTICK_PERIOD_MS);
+        // Настройка статического IP, если указано
+        if (wifiNetworks[bestNetworkIndex].useStaticSettings)
+        {
+          if (!WiFi.config(IPAddress(wifiNetworks[bestNetworkIndex].net_ip), IPAddress(wifiNetworks[bestNetworkIndex].net_gateway_ip), IPAddress(wifiNetworks[bestNetworkIndex].net_mask)))
+          {
+            printf("Не удалось выставить настройки подключения к Wi-Fi сети с лучшим RSSI \"%s\"\n", wifiNetworks[bestNetworkIndex].ssid.c_str());
+          }
+        }
+
+        WiFi.begin(wifiNetworks[bestNetworkIndex].ssid.c_str(), wifiNetworks[bestNetworkIndex].password.c_str());
+
+        printf("Подключение к WiFi сети \"%s\"\n", wifiNetworks[bestNetworkIndex].ssid.c_str());
+        uint8_t retry_count = 0;
+        while (WiFi.status() != WL_CONNECTED && retry_count < WIFI_CONNECT_RETRY_COUNT)
+        {
+          vTaskDelay(WIFI_CONNECT_COOLDOWN / portTICK_PERIOD_MS);
+          printf("Попытка подключения к Wi-Fi сети с лучшим RSSI %i/%i\n", retry_count + 1, WIFI_CONNECT_RETRY_COUNT);
+          retry_count++;
+        }
+
+        if (WiFi.status() == WL_CONNECTED)
+        {
+          printf("\nПодключено к сети с лучшим RSSI \"%s\"\n", wifiNetworks[bestNetworkIndex].ssid.c_str());
+          printf("IP адрес: %s\nRSSI: %i\n", WiFi.localIP().toString().c_str(), WiFi.RSSI());
+
+          // Синхронизация времени при подключении к Wi-Fi
+          uint8_t time_retry_count = 1U;
+          while (time_retry_count <= TIME_SYNC_RETRY_COUNT)
+          {
+            configTime(UTC_OFFSET, 0U, net_ntp.c_str());
+            if (!getLocalTime(&timeinfo))
+            {
+              printf("Не удалось получить текущее время %u/%u\n", time_retry_count, TIME_SYNC_RETRY_COUNT);
+              time_retry_count++;
+              vTaskDelay(TIME_SYNC_DELAY / portTICK_PERIOD_MS);
+              continue;
+            }
+            else
+            {
+              char timeStr[53];
+              strftime(timeStr, sizeof(timeStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
+              printf("Синхронизировано при подключении: %s\n", timeStr);
+              break;
+            }
+          }
+        }
+        else
+        {
+          printf("Ошибка подключения к сети с лучшим RSSI \"%s\"\n", wifiNetworks[bestNetworkIndex].ssid.c_str());
+        }
       }
       else
-        printf("Ошибка подключения к WiFi\n");
+      {
+        printf("Не удалось найти подходящую сеть для подключения\n");
+      }
     }
     xSemaphoreGive(wifiConnectMutex);
   }
-};
+}

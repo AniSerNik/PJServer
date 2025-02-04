@@ -30,8 +30,15 @@ void displayTask(void *pvParameters)
         oled.clear();
         oled.home();
 
-        strftime(printStr, sizeof(printStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
-        oled.print(printStr);
+        if (timeinfo.tm_year != 1970U)
+        { // Проверка, что timeinfo уже заполнен
+            strftime(printStr, sizeof(printStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
+            oled.print(printStr);
+        }
+        else
+        {
+            oled.print("Не синхронизировано");
+        }
 
         oled.setCursor(0, 1);
         oled.print("Принято: ");

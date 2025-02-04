@@ -5,71 +5,69 @@
 
 #include <Arduino.h>
 
-#define printBuf(buf)                            \
-  do                                             \
-  {                                              \
-    for (int ij = 0; ij < buf[BYTE_COUNT]; ij++) \
-      printf("%d ", buf[ij]);                    \
-    printf("\n\n");                              \
-  } while (0)
+// Максимальное количество сетей WiFi
+#define MAX_WIFI_NETWORKS 64
 
-// Включение поддержки дедупликации
-#define RH_ENABLE_EXPLICIT_RETRY_DEDUP 1
+// Структура для хранения информации о сетях WiFi
+struct WiFiNetwork
+{
+  String ssid;
+  String password;
+  bool useStaticSettings;
+  uint8_t net_ip[4];
+  uint8_t net_gateway_ip[4];
+  uint8_t net_mask[4];
+};
 
-// Отслеживание переполнения стека
-#define configCHECK_FOR_STACK_OVERFLOW 2
-
-// Настройки модуля LoRa
-#define LORA_TXPOWER 20
-#define LORA_FREQUNCY 869.2
-#define LORA_CODING_RATE4 5
-#define LORA_SIGNAL_BANDWIDTH 125000
-#define LORA_SPREADING_FACTOR 9
+// Смещение UTC в секундах
+extern int32_t UTC_OFFSET;
 
 // Адрес шлюза LoRa
-#define SERVER_ADDRESS 200U
+extern uint8_t SERVER_ADDRESS;
+
+// Настройки LoRa
+extern uint8_t LORA_TXPOWER;
+extern float LORA_FREQUENCY;
+extern uint8_t LORA_CODING_RATE4;
+extern uint32_t LORA_SIGNAL_BANDWIDTH;
+extern uint8_t LORA_SPREADING_FACTOR;
 
 // Очистка мусора
-#define GARBAGE_COLLECT_COOLDOWN 21600000U // 6 часов в миллисекундах (21600e3)
+extern uint32_t GARBAGE_COLLECT_COOLDOWN; // 6 часов в миллисекундах (21600e3)
 // Интервал синхронизации реального времени
-#define TIME_SYNC_INTERVAL 43200000U // 12 часов в миллисекундах (43200e3)
+extern uint32_t TIME_SYNC_INTERVAL; // 12 часов в миллисекундах (43200e3)
 // Таймаут на очистку данных об устройстве
-#define DATACOL_TIMESTORE 7200000U // 2 часа в миллисекундах (7200e3)
+extern uint32_t DATACOL_TIMESTORE; // 2 часа в миллисекундах (7200e3)
 // Интервал отправки данных о шлюзе
-#define GATEWORKPING_INTERVAL 300000U // 5 минут в миллисекундах (300e3)
+extern uint32_t GATEWORKPING_INTERVAL; // 5 минут в миллисекундах (300e3)
 // Интервал отрисовки данных на дисплее
-#define DISPLAY_INTERVAL 10000U // 10 секунд в миллисекундах (10e3)
+extern uint32_t DISPLAY_INTERVAL; // 10 секунд в миллисекундах (10e3)
 
 // Количество попыток синхронизации времени после подключения к Wi-Fi
-#define TIME_SYNC_RETRY_COUNT 5U
+extern uint8_t TIME_SYNC_RETRY_COUNT;
 // Количество попыток подключения к Wi-Fi
-#define WIFI_CONNECT_RETRY_COUNT 15U
+extern uint8_t WIFI_CONNECT_RETRY_COUNT;
 // Задержка на попытку подключения к Wi-Fi
-#define WIFI_CONNECT_COOLDOWN 1000U
+extern uint32_t WIFI_CONNECT_COOLDOWN;
 // Задержка на попытку синхронизации времени
-#define TIME_SYNC_DELAY 2000U
+extern uint32_t TIME_SYNC_DELAY;
 
 // Параметры для генерации JSON
-#define PARAM_SerialDevice "0"
-#define PARAM_Akey "NeKKxx2"
-#define PARAM_VersionDevice "TestSecond"
+extern String PARAM_SerialDevice;
+extern String PARAM_Akey;
+extern String PARAM_VersionDevice;
 
-// Конфигурировать ли статический IP
-#define CONFIG_STATIC_IP 0
-
-// Настройки Wi-Fi (в settings.cpp)
-extern const char *ssid;
-extern const char *password;
-extern const uint8_t net_ip[4];
-extern const uint8_t net_gateway_ip[4];
-extern const uint8_t net_mask[4];
+// Настройки Wi-Fi
+extern WiFiNetwork wifiNetworks[MAX_WIFI_NETWORKS];
 
 // Адрес NTP сервера
-extern const char *net_ntp;
-// UTC смещение в секундах
-#define UTC_OFFSET 10800 // Timezone: UTC+3
+extern String net_ntp;
 
-// Адреса серверов (в settings.cpp)
-extern const String servers[3];
+// Адреса серверов
+extern String servers[3];
+
+// Функции для работы с NVS
+void loadSettings();
+void saveSettings();
 
 #endif // LORA_GATE_HEADERS_SETTINGS_H_

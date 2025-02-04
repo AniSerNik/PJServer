@@ -5,6 +5,14 @@
 
 #include <Arduino.h>
 
+#define printBuf(buf)                                \
+    do                                               \
+    {                                                \
+        for (int ij = 0; ij < buf[BYTE_COUNT]; ij++) \
+            printf("%d ", buf[ij]);                  \
+        printf("\n\n");                              \
+    } while (0)
+
 // Константы и макросы
 #define JSON_MAX_LEN_FIELD 32
 #define JSON_MAX_NESTEDOBJECT 16
