@@ -19,25 +19,24 @@ void displayTask(void *pvParameters)
 
     while (1)
     {
-        char printStr[64];
-        getLocalTime(&timeinfo);
-        if (day != timeinfo.tm_mday)
-        {
-            day = timeinfo.tm_mday;
-            receivedPacketCounter = 0;
-        }
-
         oled.clear();
         oled.home();
 
-        if (timeinfo.tm_year != 1970U)
-        { // Проверка, что timeinfo уже заполнен
+        char printStr[64];
+        if (getLocalTime(&timeinfo))
+        {
             strftime(printStr, sizeof(printStr), "%d-%m-%Y %H:%M:%S", &timeinfo);
             oled.print(printStr);
         }
         else
         {
             oled.print("Не синхронизировано");
+        }
+
+        if (day != timeinfo.tm_mday)
+        {
+            day = timeinfo.tm_mday;
+            receivedPacketCounter = 0;
         }
 
         oled.setCursor(0, 1);

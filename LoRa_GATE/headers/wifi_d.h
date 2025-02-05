@@ -14,6 +14,11 @@ extern QueueHandle_t wifiSendQueue;
 void sendToServerTask(void *pvParameters);
 void gatePingTask(void *pvParameters);
 void timeSyncTask(void *pvParameters);
+void webServerTask(void *pvParameters);
+
+// Веб-сервер
+static void handleRoot();
+static void handleSaveSettings();
 
 // Подключение к Wi-Fi
 static void wifiConnect();

@@ -2,6 +2,7 @@
 
 #include "headers/settings.h"
 #include <Preferences.h>
+#include <nvs_flash.h>
 
 // Адрес шлюза LoRa
 uint8_t SERVER_ADDRESS = 200U;
@@ -25,15 +26,14 @@ String PARAM_VersionDevice = "TestSecond";
 
 // Сети Wi-Fi
 WiFiNetwork wifiNetworks[MAX_WIFI_NETWORKS] = {
-    {"MyNetWork", "mmmmmmmm", false, {192, 168, 0, 95}, {192, 168, 0, 1}, {255, 255, 255, 0}},
-    {"rt451-Ext", "apsI0gqvFn", false, {192, 168, 0, 95}, {192, 168, 0, 1}, {255, 255, 255, 0}},
-    {"MyNetWork1", "mmmmmmmm", false, {192, 168, 0, 95}, {192, 168, 0, 1}, {255, 255, 255, 0}}};
+    {"MyNetWork", "mmmmmmmm", false, IPAddress(192, 168, 0, 95), IPAddress(192, 168, 0, 1), IPAddress(255, 255, 255, 0)},
+    {"rt451-Ext", "apsI0gqvFn", false, IPAddress(192, 168, 0, 95), IPAddress(192, 168, 0, 1), IPAddress(255, 255, 255, 0)}};
 
 // Адрес NTP сервера
 String net_ntp = "pool.ntp.org";
 
 // Адреса серверов
-String servers[3] = {
+String servers[MAX_SERVERS] = {
     "http://robo.itkm.ru/core/jsonapp.php",
     "http://46.254.216.214/core/jsonapp.php",
     "http://dbrobo1.mf.bmstu.ru/core/jsonapp.php"};
@@ -54,84 +54,102 @@ void loadSettings()
 {
     preferences.begin("settings", true);
 
-    SERVER_ADDRESS = preferences.getUChar("SERVER_ADDRESS", SERVER_ADDRESS);
-    GARBAGE_COLLECT_COOLDOWN = preferences.getUInt("GARBAGE_COLLECT_COOLDOWN", GARBAGE_COLLECT_COOLDOWN);
-    TIME_SYNC_INTERVAL = preferences.getUInt("TIME_SYNC_INTERVAL", TIME_SYNC_INTERVAL);
-    DATACOL_TIMESTORE = preferences.getUInt("DATACOL_TIMESTORE", DATACOL_TIMESTORE);
-    GATEWORKPING_INTERVAL = preferences.getUInt("GATEWORKPING_INTERVAL", GATEWORKPING_INTERVAL);
-    DISPLAY_INTERVAL = preferences.getUInt("DISPLAY_INTERVAL", DISPLAY_INTERVAL);
-    TIME_SYNC_RETRY_COUNT = preferences.getUChar("TIME_SYNC_RETRY_COUNT", TIME_SYNC_RETRY_COUNT);
-    WIFI_CONNECT_RETRY_COUNT = preferences.getUChar("WIFI_CONNECT_RETRY_COUNT", WIFI_CONNECT_RETRY_COUNT);
-    WIFI_CONNECT_COOLDOWN = preferences.getUInt("WIFI_CONNECT_COOLDOWN", WIFI_CONNECT_COOLDOWN);
-    TIME_SYNC_DELAY = preferences.getUInt("TIME_SYNC_DELAY", TIME_SYNC_DELAY);
-    PARAM_SerialDevice = preferences.getString("PARAM_SerialDevice", PARAM_SerialDevice);
-    PARAM_Akey = preferences.getString("PARAM_Akey", PARAM_Akey);
-    PARAM_VersionDevice = preferences.getString("PARAM_VersionDevice", PARAM_VersionDevice);
-    net_ntp = preferences.getString("net_ntp", net_ntp);
+    SERVER_ADDRESS = preferences.getUChar("srv_addr", SERVER_ADDRESS);
+    GARBAGE_COLLECT_COOLDOWN = preferences.getUInt("gc_cd", GARBAGE_COLLECT_COOLDOWN);
+    TIME_SYNC_INTERVAL = preferences.getUInt("ts_int", TIME_SYNC_INTERVAL);
+    DATACOL_TIMESTORE = preferences.getUInt("dc_ts", DATACOL_TIMESTORE);
+    GATEWORKPING_INTERVAL = preferences.getUInt("gw_ping_int", GATEWORKPING_INTERVAL);
+    DISPLAY_INTERVAL = preferences.getUInt("disp_int", DISPLAY_INTERVAL);
+    TIME_SYNC_RETRY_COUNT = preferences.getUChar("ts_retry", TIME_SYNC_RETRY_COUNT);
+    WIFI_CONNECT_RETRY_COUNT = preferences.getUChar("wifi_retry", WIFI_CONNECT_RETRY_COUNT);
+    WIFI_CONNECT_COOLDOWN = preferences.getUInt("wifi_cd", WIFI_CONNECT_COOLDOWN);
+    TIME_SYNC_DELAY = preferences.getUInt("ts_delay", TIME_SYNC_DELAY);
+    PARAM_SerialDevice = preferences.getString("serial_dev", PARAM_SerialDevice);
+    PARAM_Akey = preferences.getString("akey", PARAM_Akey);
+    PARAM_VersionDevice = preferences.getString("ver_dev", PARAM_VersionDevice);
+    net_ntp = preferences.getString("ntp", net_ntp);
+
     for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
     {
         wifiNetworks[i].ssid = preferences.getString(("wifi_ssid" + String(i)).c_str(), wifiNetworks[i].ssid);
-        wifiNetworks[i].password = preferences.getString(("wifi_password" + String(i)).c_str(), wifiNetworks[i].password);
-        wifiNetworks[i].useStaticSettings = preferences.getBool(("wifi_useStatic" + String(i)).c_str(), wifiNetworks[i].useStaticSettings);
-        preferences.getBytes(("wifi_ip" + String(i)).c_str(), wifiNetworks[i].net_ip, sizeof(wifiNetworks[i].net_ip));
-        preferences.getBytes(("wifi_gateway" + String(i)).c_str(), wifiNetworks[i].net_gateway_ip, sizeof(wifiNetworks[i].net_gateway_ip));
-        preferences.getBytes(("wifi_mask" + String(i)).c_str(), wifiNetworks[i].net_mask, sizeof(wifiNetworks[i].net_mask));
+        wifiNetworks[i].password = preferences.getString(("wifi_pwd" + String(i)).c_str(), wifiNetworks[i].password);
+        wifiNetworks[i].useStaticSettings = preferences.getBool(("wifi_static" + String(i)).c_str(), wifiNetworks[i].useStaticSettings);
+        wifiNetworks[i].net_ip.fromString(preferences.getString(("wifi_ip" + String(i)).c_str(), wifiNetworks[i].net_ip.toString()));
+        wifiNetworks[i].net_gateway_ip.fromString(preferences.getString(("wifi_gw" + String(i)).c_str(), wifiNetworks[i].net_gateway_ip.toString()));
+        wifiNetworks[i].net_mask.fromString(preferences.getString(("wifi_mask" + String(i)).c_str(), wifiNetworks[i].net_mask.toString()));
     }
-    for (int i = 0; i < 3; i++)
+
+    for (int i = 0; i < MAX_SERVERS; i++)
     {
-        servers[i] = preferences.getString(("server" + String(i)).c_str(), servers[i]);
+        servers[i] = preferences.getString(("srv" + String(i)).c_str(), servers[i]);
     }
 
-    LORA_TXPOWER = preferences.getUChar("LORA_TXPOWER", LORA_TXPOWER);
-    LORA_FREQUENCY = preferences.getFloat("LORA_FREQUENCY", LORA_FREQUENCY);
-    LORA_CODING_RATE4 = preferences.getUChar("LORA_CODING_RATE4", LORA_CODING_RATE4);
-    LORA_SIGNAL_BANDWIDTH = preferences.getUInt("LORA_SIGNAL_BANDWIDTH", LORA_SIGNAL_BANDWIDTH);
-    LORA_SPREADING_FACTOR = preferences.getUChar("LORA_SPREADING_FACTOR", LORA_SPREADING_FACTOR);
-
-    UTC_OFFSET = preferences.getInt("UTC_OFFSET", UTC_OFFSET);
+    LORA_TXPOWER = preferences.getUChar("lora_txpwr", LORA_TXPOWER);
+    LORA_FREQUENCY = preferences.getFloat("lora_freq", LORA_FREQUENCY);
+    LORA_CODING_RATE4 = preferences.getUChar("lora_cr", LORA_CODING_RATE4);
+    LORA_SIGNAL_BANDWIDTH = preferences.getUInt("lora_bw", LORA_SIGNAL_BANDWIDTH);
+    LORA_SPREADING_FACTOR = preferences.getUChar("lora_sf", LORA_SPREADING_FACTOR);
+    UTC_OFFSET = preferences.getInt("utc_offset", UTC_OFFSET);
 
     preferences.end();
 }
 
 void saveSettings()
 {
+    // Очистка NVS
+    esp_err_t err = nvs_flash_erase();
+    if (err != ESP_OK)
+    {
+        Serial.println("Ошибка очистки NVS\n");
+        return;
+    }
+
+    // Инициализация NVS
+    err = nvs_flash_init();
+    if (err != ESP_OK)
+    {
+        Serial.println("Ошибка инициализации NVS\n");
+        return;
+    }
+
     preferences.begin("settings", false);
 
-    preferences.putUChar("SERVER_ADDRESS", SERVER_ADDRESS);
-    preferences.putUInt("GARBAGE_COLLECT_COOLDOWN", GARBAGE_COLLECT_COOLDOWN);
-    preferences.putUInt("TIME_SYNC_INTERVAL", TIME_SYNC_INTERVAL);
-    preferences.putUInt("DATACOL_TIMESTORE", DATACOL_TIMESTORE);
-    preferences.putUInt("GATEWORKPING_INTERVAL", GATEWORKPING_INTERVAL);
-    preferences.putUInt("DISPLAY_INTERVAL", DISPLAY_INTERVAL);
-    preferences.putUChar("TIME_SYNC_RETRY_COUNT", TIME_SYNC_RETRY_COUNT);
-    preferences.putUChar("WIFI_CONNECT_RETRY_COUNT", WIFI_CONNECT_RETRY_COUNT);
-    preferences.putUInt("WIFI_CONNECT_COOLDOWN", WIFI_CONNECT_COOLDOWN);
-    preferences.putUInt("TIME_SYNC_DELAY", TIME_SYNC_DELAY);
-    preferences.putString("PARAM_SerialDevice", PARAM_SerialDevice);
-    preferences.putString("PARAM_Akey", PARAM_Akey);
-    preferences.putString("PARAM_VersionDevice", PARAM_VersionDevice);
-    preferences.putString("net_ntp", net_ntp);
+    preferences.putUChar("srv_addr", SERVER_ADDRESS);
+    preferences.putUInt("gc_cd", GARBAGE_COLLECT_COOLDOWN);
+    preferences.putUInt("ts_int", TIME_SYNC_INTERVAL);
+    preferences.putUInt("dc_ts", DATACOL_TIMESTORE);
+    preferences.putUInt("gw_ping_int", GATEWORKPING_INTERVAL);
+    preferences.putUInt("disp_int", DISPLAY_INTERVAL);
+    preferences.putUChar("ts_retry", TIME_SYNC_RETRY_COUNT);
+    preferences.putUChar("wifi_retry", WIFI_CONNECT_RETRY_COUNT);
+    preferences.putUInt("wifi_cd", WIFI_CONNECT_COOLDOWN);
+    preferences.putUInt("ts_delay", TIME_SYNC_DELAY);
+    preferences.putString("serial_dev", PARAM_SerialDevice);
+    preferences.putString("akey", PARAM_Akey);
+    preferences.putString("ver_dev", PARAM_VersionDevice);
+    preferences.putString("ntp", net_ntp);
+
     for (int i = 0; i < MAX_WIFI_NETWORKS; i++)
     {
         preferences.putString(("wifi_ssid" + String(i)).c_str(), wifiNetworks[i].ssid);
-        preferences.putString(("wifi_password" + String(i)).c_str(), wifiNetworks[i].password);
-        preferences.putBool(("wifi_useStatic" + String(i)).c_str(), wifiNetworks[i].useStaticSettings);
-        preferences.putBytes(("wifi_ip" + String(i)).c_str(), wifiNetworks[i].net_ip, sizeof(wifiNetworks[i].net_ip));
-        preferences.putBytes(("wifi_gateway" + String(i)).c_str(), wifiNetworks[i].net_gateway_ip, sizeof(wifiNetworks[i].net_gateway_ip));
-        preferences.putBytes(("wifi_mask" + String(i)).c_str(), wifiNetworks[i].net_mask, sizeof(wifiNetworks[i].net_mask));
+        preferences.putString(("wifi_pwd" + String(i)).c_str(), wifiNetworks[i].password);
+        preferences.putBool(("wifi_static" + String(i)).c_str(), wifiNetworks[i].useStaticSettings);
+        preferences.putString(("wifi_ip" + String(i)).c_str(), wifiNetworks[i].net_ip.toString());
+        preferences.putString(("wifi_gw" + String(i)).c_str(), wifiNetworks[i].net_gateway_ip.toString());
+        preferences.putString(("wifi_mask" + String(i)).c_str(), wifiNetworks[i].net_mask.toString());
     }
-    for (int i = 0; i < 3; i++)
+
+    for (int i = 0; i < MAX_SERVERS; i++)
     {
-        preferences.putString(("server" + String(i)).c_str(), servers[i]);
+        preferences.putString(("srv" + String(i)).c_str(), servers[i]);
     }
 
-    preferences.putUChar("LORA_TXPOWER", LORA_TXPOWER);
-    preferences.putFloat("LORA_FREQUENCY", LORA_FREQUENCY);
-    preferences.putUChar("LORA_CODING_RATE4", LORA_CODING_RATE4);
-    preferences.putUInt("LORA_SIGNAL_BANDWIDTH", LORA_SIGNAL_BANDWIDTH);
-    preferences.putUChar("LORA_SPREADING_FACTOR", LORA_SPREADING_FACTOR);
-
-    preferences.putInt("UTC_OFFSET", UTC_OFFSET);
+    preferences.putUChar("lora_txpwr", LORA_TXPOWER);
+    preferences.putFloat("lora_freq", LORA_FREQUENCY);
+    preferences.putUChar("lora_cr", LORA_CODING_RATE4);
+    preferences.putUInt("lora_bw", LORA_SIGNAL_BANDWIDTH);
+    preferences.putUChar("lora_sf", LORA_SPREADING_FACTOR);
+    preferences.putInt("utc_offset", UTC_OFFSET);
 
     preferences.end();
 }

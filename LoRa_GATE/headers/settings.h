@@ -6,7 +6,8 @@
 #include <Arduino.h>
 
 // Максимальное количество сетей WiFi
-#define MAX_WIFI_NETWORKS 64
+#define MAX_WIFI_NETWORKS 32
+#define MAX_SERVERS 16
 
 // Структура для хранения информации о сетях WiFi
 struct WiFiNetwork
@@ -14,9 +15,9 @@ struct WiFiNetwork
   String ssid;
   String password;
   bool useStaticSettings;
-  uint8_t net_ip[4];
-  uint8_t net_gateway_ip[4];
-  uint8_t net_mask[4];
+  IPAddress net_ip;
+  IPAddress net_gateway_ip;
+  IPAddress net_mask;
 };
 
 // Смещение UTC в секундах
@@ -64,7 +65,7 @@ extern WiFiNetwork wifiNetworks[MAX_WIFI_NETWORKS];
 extern String net_ntp;
 
 // Адреса серверов
-extern String servers[3];
+extern String servers[MAX_SERVERS];
 
 // Функции для работы с NVS
 void loadSettings();

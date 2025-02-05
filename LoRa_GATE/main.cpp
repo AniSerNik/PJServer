@@ -123,6 +123,14 @@ void setup()
         NULL,
         2,
         NULL);
+
+    xTaskCreate(
+        webServerTask,
+        "Web Server Task",
+        8192,
+        NULL,
+        1,
+        NULL);
 }
 
 void loop()
