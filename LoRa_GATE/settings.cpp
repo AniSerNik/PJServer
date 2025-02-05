@@ -100,7 +100,7 @@ void saveSettings()
     esp_err_t err = nvs_flash_erase();
     if (err != ESP_OK)
     {
-        Serial.println("Ошибка очистки NVS\n");
+        printf("Ошибка очистки NVS\n");
         return;
     }
 
@@ -108,7 +108,7 @@ void saveSettings()
     err = nvs_flash_init();
     if (err != ESP_OK)
     {
-        Serial.println("Ошибка инициализации NVS\n");
+        printf("Ошибка инициализации NVS\n");
         return;
     }
 
