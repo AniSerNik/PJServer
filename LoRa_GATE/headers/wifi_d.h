@@ -19,6 +19,9 @@ void webServerTask(void *pvParameters);
 // Веб-сервер
 static void handleRoot();
 static void handleSaveSettings();
+static void handleClearNVS();
+static void handleNotFound();
+static void handleRestart();
 
 // Подключение к Wi-Fi
 static void wifiConnect();

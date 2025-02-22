@@ -9,6 +9,8 @@
             "name": "PlatformIO",
             "includePath": [
                 "C:/LilyGo-LoRa-Series/LoRa_GATE",
+                "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
+                "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Preferences/src",
@@ -226,7 +228,6 @@
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/ESPmDNS/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Ethernet/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/FFat/src",
-                "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/HTTPUpdate/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/HTTPUpdateServer/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/I2S/src",
@@ -241,7 +242,6 @@
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Ticker/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/USB/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Update/src",
-                "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                 "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
                 ""
             ],
@@ -249,6 +249,8 @@
                 "limitSymbolsToIncludedHeaders": true,
                 "path": [
                     "C:/LilyGo-LoRa-Series/LoRa_GATE",
+                    "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
+                    "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/HTTPClient/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WiFiClientSecure/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Preferences/src",
@@ -466,7 +468,6 @@
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/ESPmDNS/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Ethernet/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/FFat/src",
-                    "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/HTTPUpdate/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/HTTPUpdateServer/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/I2S/src",
@@ -481,13 +482,12 @@
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Ticker/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/USB/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/Update/src",
-                    "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WebServer/src",
                     "C:/Users/maksd/.platformio/packages/framework-arduinoespressif32/libraries/WiFiProv/src",
                     ""
                 ]
             },
             "defines": [
-                "PLATFORMIO=60116",
+                "PLATFORMIO=60117",
                 "ARDUINO_LILYGO_T3_S3_V1_X",
                 "BOARD_HAS_PSRAM",
                 "ARDUINO_USB_CDC_ON_BOOT=1",

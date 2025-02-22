@@ -32,7 +32,7 @@ void loraReceiveTask(void *pvParameters)
       }
       digitalWrite(LED_BUILTIN, LOW);
     }
-    vTaskDelay(10 / portTICK_PERIOD_MS); // Задержка на вызов manager.available()
+    vTaskDelay(LORA_INTERVAL / portTICK_PERIOD_MS); // Задержка на вызов manager.available()
   }
 }
 

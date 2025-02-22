@@ -54,17 +54,30 @@ void displayTask(void *pvParameters)
         strftime(printStr, sizeof(printStr), "%H:%M:%S", &lastPacketData.date);
         oled.print(printStr);
 
-        oled.setCursor(0, 5);
-        oled.print("SSID: ");
-        oled.print(WiFi.SSID());
-
-        oled.setCursor(0, 6);
-        oled.print("IP: ");
-        oled.print(WiFi.localIP());
-
-        oled.setCursor(0, 7);
-        oled.print("RSSI: ");
-        oled.print(WiFi.RSSI());
+        if ((WiFi.getMode() & WIFI_AP) == WIFI_AP)
+        {
+            oled.setCursor(0, 5);
+            oled.print("SSID: ");
+            oled.print(WiFi.softAPSSID());
+            oled.setCursor(0, 6);
+            oled.print("Пароль: ");
+            oled.print(AP_PASSWORD);
+            oled.setCursor(0, 7);
+            oled.print("IP: ");
+            oled.print(WiFi.softAPIP());
+        }
+        else
+        {
+            oled.setCursor(0, 5);
+            oled.print("SSID: ");
+            oled.print(WiFi.SSID());
+            oled.setCursor(0, 6);
+            oled.print("IP: ");
+            oled.print(WiFi.localIP());
+            oled.setCursor(0, 7);
+            oled.print("RSSI: ");
+            oled.print(WiFi.RSSI());
+        }
 
         oled.update();
         vTaskDelay(DISPLAY_INTERVAL / portTICK_PERIOD_MS);

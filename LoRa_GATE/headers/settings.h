@@ -26,6 +26,9 @@ extern int32_t UTC_OFFSET;
 // Адрес шлюза LoRa
 extern uint8_t SERVER_ADDRESS;
 
+// Интервал работы задачи проверки доступных сообщений от модуля LoRa
+extern uint32_t LORA_INTERVAL;
+
 // Настройки LoRa
 extern uint8_t LORA_TXPOWER;
 extern float LORA_FREQUENCY;
@@ -43,6 +46,10 @@ extern uint32_t DATACOL_TIMESTORE; // 2 часа в миллисекундах (
 extern uint32_t GATEWORKPING_INTERVAL; // 5 минут в миллисекундах (300e3)
 // Интервал отрисовки данных на дисплее
 extern uint32_t DISPLAY_INTERVAL; // 10 секунд в миллисекундах (10e3)
+// Интервал работы задачи веб сервера
+extern uint32_t WEB_SERVER_INTERVAL;
+// Задержка на работу задачи подключения к WiFi если включили AP
+extern uint32_t NOWIFI_AP_DELAY;
 
 // Количество попыток синхронизации времени после подключения к Wi-Fi
 extern uint8_t TIME_SYNC_RETRY_COUNT;
@@ -55,14 +62,18 @@ extern uint32_t TIME_SYNC_DELAY;
 
 // Параметры для генерации JSON
 extern String PARAM_SerialDevice;
-extern String PARAM_Akey;
+extern String PARAM_AKEY;
 extern String PARAM_VersionDevice;
 
 // Настройки Wi-Fi
 extern WiFiNetwork wifiNetworks[MAX_WIFI_NETWORKS];
 
+// Настройки точки доступа
+extern String AP_NAME;
+extern String AP_PASSWORD;
+
 // Адрес NTP сервера
-extern String net_ntp;
+extern String NET_NTP;
 
 // Адреса серверов
 extern String servers[MAX_SERVERS];
@@ -70,5 +81,6 @@ extern String servers[MAX_SERVERS];
 // Функции для работы с NVS
 void loadSettings();
 void saveSettings();
+bool clearNVS();
 
 #endif // LORA_GATE_HEADERS_SETTINGS_H_
