@@ -7,13 +7,13 @@
 uint8_t SERVER_ADDRESS = 200U;
 
 uint32_t WEB_SERVER_INTERVAL = 300U; // 300 миллисекунд
-uint32_t LORA_INTERVAL = 10U;        // 10 миллисекунд
+uint32_t LORA_INTERVAL = 50U;        // 50 миллисекунд
+uint32_t DISPLAY_INTERVAL = 500U;    // 500 миллисекундах
 
 uint32_t GARBAGE_COLLECT_COOLDOWN = 21600000U; // 6 часов в миллисекундах (21600e3)
 uint32_t TIME_SYNC_INTERVAL = 3600000U;        // 1 час в миллисекундах (3600e3)
 uint32_t DATACOL_TIMESTORE = 7200000U;         // 2 часа в миллисекундах (7200e3)
 uint32_t GATEWORKPING_INTERVAL = 300000U;      // 5 минут в миллисекундах (300e3)
-uint32_t DISPLAY_INTERVAL = 10000U;            // 10 секунд в миллисекундах (10e3)
 uint32_t WIFI_CONNECT_COOLDOWN = 1000U;        // 1 секунда в миллисекундах (1e3)
 uint32_t TIME_SYNC_DELAY = 2000U;              // 2 секунды в миллисекундах (2e3)
 uint32_t NOWIFI_AP_DELAY = 300000U;            // 5 минут в миллисекундах (300e3)
