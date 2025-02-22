@@ -89,7 +89,7 @@ void setup()
         "Send To Server Task",
         4096,
         NULL,
-        3,
+        6,
         NULL);
 
     xTaskCreate(
