@@ -3,6 +3,10 @@
 #ifndef LIB_JDE_JDE_PROTOCOL_H_
 #define LIB_JDE_JDE_PROTOCOL_H_
 
+// Определение максимальной длины поля JSON и максимального уровня вложенности
+#define JSON_MAX_LEN_FIELD 32    // Максимальная длина поля JSON
+#define JSON_MAX_NESTEDOBJECT 16 // Максимальный уровень вложенности JSON
+
 // Определения для типов данных в JSON
 #define COMMAND 0       // [00000000] Команда
 #define BYTE_COUNT 1    // [00000001] Количество байт в пакете

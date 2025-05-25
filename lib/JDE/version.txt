@@ -1,1 +1,12 @@
-1.0
+JDE - Json Decode / Encode Library
+
+JDE Protocol Version: 1.0.0
+
+Last Updated: 2025-05-25
+
+Changelog:
+===
+
+Version 1.0.0 (2025-05-25):
+  - Initial library creation.
+  - Separated client-side (JDE_client) and server-side (JDE_server - assumed) logic into distinct components. 

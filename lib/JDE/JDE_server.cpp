@@ -1,5 +1,7 @@
 // Copyright [2025] <>
 
+#ifdef JDE_SERVER_BUILD
+
 #include <Arduino.h>
 #include "JDE_server.h"
 
@@ -268,3 +270,5 @@ int64_t quick_pow10(int n)
     return 1;
   return pow10[n];
 }
+
+#endif // JDE_SERVER_BUILD
