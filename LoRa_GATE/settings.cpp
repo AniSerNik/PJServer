@@ -1,4 +1,4 @@
-// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+// Copyright [2025] <>
 
 #include "headers/settings.h"
 #include <Preferences.h>

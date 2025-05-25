@@ -1,4 +1,4 @@
-// Copyright [2025] Мальцев Максим Дмитриевич <maksdm007@gmail.com>
+// Copyright [2025] <>
 
 #ifndef LORA_GATE_HEADERS_MAIN_H_
 #define LORA_GATE_HEADERS_MAIN_H_
