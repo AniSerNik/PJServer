@@ -28,7 +28,8 @@ String PARAM_VersionDevice = "TestSecond";
 
 // Сети Wi-Fi
 WiFiNetwork wifiNetworks[MAX_WIFI_NETWORKS] = {
-    {"rt451-Ext", "apsI0gqvFn", false, IPAddress(192, 168, 0, 95), IPAddress(192, 168, 0, 1), IPAddress(255, 255, 255, 0)}};
+    {"rt451-Ext", "apsI0gqvFn", false, IPAddress(192, 168, 0, 95), IPAddress(192, 168, 0, 1), IPAddress(255, 255, 255, 0)},
+    {"rt451", "apsI0gqvFn", false, IPAddress(192, 168, 0, 95), IPAddress(192, 168, 0, 1), IPAddress(255, 255, 255, 0)}};
 
 // Настройки точки доступа
 String AP_NAME = "LoRaGateAP";
