@@ -10,7 +10,6 @@
 #include "headers/settings.h"
 
 // Глобальные переменные
-std::unordered_map<uint8_t, deviceInfo> devicesInfo;
 SemaphoreHandle_t devicesInfoMutex;
 SemaphoreHandle_t wifiConnectMutex;
 
